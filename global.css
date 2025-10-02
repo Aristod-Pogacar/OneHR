@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'OneHR-font-regular';
+    src: url('/assets/fonts/MuseoModerno-Regular.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;

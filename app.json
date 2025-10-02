@@ -3,8 +3,8 @@
     "name": "OneHR",
     "slug": "OneHR",
     "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "orientation": "landscape",
+    "icon": "./assets/images/icon-OneHR.png",
     "scheme": "onehr",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,16 +14,16 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/android-icon-foreground-OneHR.png",
+        "backgroundImage": "./assets/images/android-icon-background-OneHR.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome-OneHR.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon-OneHR.png"
     },
     "plugins": [
       "expo-router",
@@ -38,7 +38,10 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

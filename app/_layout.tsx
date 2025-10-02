@@ -1,24 +1,27 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { LinearGradient } from "expo-linear-gradient";
+import { Stack } from "expo-router";
+import { UserProvider } from "./contexts/UserContext";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <LinearGradient
+      colors={["#DEEFFF", "#C3EFFF"]}
+      className="flex-1"
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.8, y: 0.8 }}
+    >
+      <UserProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="LoginScreen" />
+          <Stack.Screen name="Menu" />
+          <Stack.Screen name="MenuConge" />
+          <Stack.Screen name="CongeAnnuel_DateDebut" />
+          <Stack.Screen name="CongeAnnuel_DateFin" />
+          <Stack.Screen name="CongeAnnuel_Motif" />
+          <Stack.Screen name="index" />
+        </Stack>
+      </UserProvider>
+    </LinearGradient>
   );
 }
