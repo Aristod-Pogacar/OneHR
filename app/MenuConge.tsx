@@ -9,9 +9,9 @@ export default function MenuConge() {
   const router = useRouter();
 
   const buttons = [
-    { label: "Fialan- tsasatra isan-taona", route: "/CongeAnnuel_DateDebut", icon: "beach-access" },
-    { label: "Fierana", route: "", icon: "alarm" },
-    { label: "Fierana 2h", route: "", icon: "hourglass-bottom" },
+    { label: "Fialan- tsasatra isan-taona", route: "/CongeAnnuel_DateDebut", icon: "plane-car" },
+    { label: "Fierana", route: "/Permission_Reason", icon: "calendar-remove" },
+    { label: "Fierana 2h", route: "", icon: "clock-time-three" },
   ];
 
   return (
@@ -51,7 +51,7 @@ export default function MenuConge() {
               delay: buttons.length * 100,
             }}
           >
-            <SecondarySquareButton label="Hiverina" onPress={() => router.back()} icon={"arrow-back"} />
+            <SecondarySquareButton label="Hiverina" onPress={() => router.back()} icon={"keyboard-backspace"} />
             </MotiView>
         </View>
         </ScrollView>

@@ -1,4 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Text, TouchableOpacity } from "react-native";
 
@@ -23,7 +23,7 @@ export const SecondarySquareButton: React.FC<SecondarySquareButtonProps> = ({ la
         className="w-full h-full p-5 items-center justify-center"
       >
 
-      <MaterialIcons name={icon} size={64} color={textColor.replace("text-", "")} />
+      <MaterialCommunityIcons name={icon} size={64} color={textColor.replace("text-", "")} />
       <Text className={`${textColor} adjustsFontSizeToFit text-lg font-bold text-center`} style={{ flexWrap: "wrap" }}>{label}</Text>
       </LinearGradient>
     </TouchableOpacity>

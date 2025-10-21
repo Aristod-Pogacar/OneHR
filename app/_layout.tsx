@@ -19,6 +19,10 @@ export default function RootLayout() {
           <Stack.Screen name="CongeAnnuel_DateDebut" />
           <Stack.Screen name="CongeAnnuel_DateFin" />
           <Stack.Screen name="CongeAnnuel_Motif" />
+          <Stack.Screen name="Permission_Reason" />
+          <Stack.Screen name="Permission_StartingDate" />
+          <Stack.Screen name="Permission_EndingDate" />
+          <Stack.Screen name="test" />
           <Stack.Screen name="index" />
         </Stack>
       </UserProvider>

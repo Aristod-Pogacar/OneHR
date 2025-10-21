@@ -4,18 +4,30 @@ import { MotiView } from "moti";
 import { ScrollView, Text, View } from "react-native";
 import { SecondarySquareButton } from "./components/SecondarySquareButton";
 import { SquareButton } from "./components/SquareButton";
-import { useUser } from "./contexts/UserContext";
 
-export default function MenuScreen() {
-  const { username } = useUser();
+export default function PermissionReason() {
   const router = useRouter();
 
   const buttons = [
-    { label: "Fialan- tsasatra", route: "/MenuConge", icon: "calendar-remove" },
-    { label: "Menu 1", route: "", icon: "home" },
-    { label: "Menu 2", route: "", icon: "home" },
-    { label: "TEST", route: "/test", icon: "bug-check" },
+    { label: "Fanambadina", route: "/Permission_StartingDate", icon: "ring" },
+    { label: "Vodiondry", route: "/Permission_StartingDate", icon: "heart-half-full" },
+    { label: "Fahaterahana", route: "/Permission_StartingDate", icon: "baby-face" },
+    { label: "Famorana", route: "/Permission_StartingDate", icon: "content-cut" },
+    { label: "Fahafatesana", route: "/Permission_StartingDate", icon: "cross" },
+    { label: "Fidirana hopitaly", route: "/Permission_StartingDate", icon: "hospital-box" },
+    { label: "Famadihana", route: "/Permission_StartingDate", icon: "coffin" },
+    { label: "Fifindra- monina", route: "/Permission_StartingDate", icon: "home-export-outline" },
+    { label: "Batemy", route: "/Permission_StartingDate", icon: "church" },
+    { label: "Tra-boina", route: "/Permission_StartingDate", icon: "fire" },
+    { label: "Assistance maternelle", route: "/Permission_StartingDate", icon: "human-baby-changing-table" },
   ];
+
+  const clicked = (route: any, reason: any) => {
+    router.push({
+      pathname: route,
+      params: { permissionMotif: reason },
+    });
+  }
 
   return (
     <LinearGradient
@@ -26,7 +38,7 @@ export default function MenuScreen() {
     >
     <View className="flex-1 p-20">
       <View className="items-center justify-center">
-        <Text className="text-3xl font-bold mb-8 fixed-top">Bonjour {username} !</Text>
+        <Text className="text-3xl font-bold mb-8 fixed-top">Anton'ny fierana</Text>
         {/* <Text className="text-3xl font-bold mb-8 fixed-top">Safidy fototra</Text> */}
       </View>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -43,7 +55,7 @@ export default function MenuScreen() {
                 delay: index * 100, // cascade
               }}
             >
-            <SquareButton key={index} label={btn.label} onPress={() => router.push(btn.route)} icon={btn.icon} />
+            <SquareButton key={index} label={btn.label} onPress={() => clicked(btn.route, btn.label)} icon={btn.icon} />
             </MotiView>
           ))}
           <MotiView
@@ -55,7 +67,7 @@ export default function MenuScreen() {
               delay: buttons.length * 100,
             }}
           >
-            <SecondarySquareButton label="Hivoaka" onPress={() => router.push('/LoginScreen')} icon={"logout"} />
+            <SecondarySquareButton label="Hiverina" onPress={() => router.back()} icon={"keyboard-backspace"} />
           </MotiView>
         </View>
         </ScrollView>

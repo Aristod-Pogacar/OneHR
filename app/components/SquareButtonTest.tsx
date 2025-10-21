@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Text, TouchableOpacity } from "react-native";
 
-interface SquareButtonProps {
+interface SquareButtonTestProps {
     onPress: () => void;
     icon: string;
     label?: string;
@@ -11,14 +11,13 @@ interface SquareButtonProps {
     size?: string;
   }
   
-export const SquareButton: React.FC<SquareButtonProps> = ({ label, icon, onPress, backgroundColor = "bg-cyan-500", textColor = "text-white" }) => {
+export const SquareButtonTest: React.FC<SquareButtonTestProps> = ({ label, icon, onPress, backgroundColor = "bg-cyan-500", textColor = "text-white" }) => {
   return (
     <TouchableOpacity
       className={`aspect-square ${backgroundColor} rounded-xl items-center justify-center shadow-xl m-2 w-[150px]  overflow-hidden`}
       onPress={onPress}>
         <LinearGradient
-        // colors={["#00BCD4", "#00ACC4"]}
-        colors={["#20CCE4", "#00ACC4"]}
+        colors={["#00BCD4", "#00ACC4"]}
         start={{ x: 0.2, y: 0.2 }}
         end={{ x: 0.8, y: 0.8 }}
         className="w-full h-full p-5 items-center justify-center"
