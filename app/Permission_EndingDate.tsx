@@ -6,42 +6,73 @@ import { ButtonSecondary } from "./components/ButtonSecondary";
 import DateSelector from "./components/DateSelector";
 
 export default function Permission_EndingDate() {
+
+  const options = {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  };
+
   const today = new Date();
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
+  today.setMilliseconds(0);
+
   const router = useRouter();
   const { permissionMotif, startingDate } = useLocalSearchParams();
-  const [endingDate, setEndingDate] = useState<Date | null>(today);
-  const [valideValue, setValideValue] = useState<Boolean>(true);
+  const [endingDate, setEndingDate] = useState<Date>(today);
+  const [valideValue, setValideValue] = useState<Boolean>(false);
+
+  function calculerDifferenceEnJours(date1: Date, date2: Date) {
+    const MS_PAR_JOUR = 1000 * 60 * 60 * 24;
+
+    const differenceEnMs = date2.getTime() - date1.getTime();
+    return Math.floor(Math.abs(differenceEnMs / MS_PAR_JOUR));
+  }
 
   const onClick = (reason: any, startDate: any, endDate: any) => {
     const st = new Date(startDate)
-    console.log("Reason:", reason);
-    console.log("Starting date:", st);
-    console.log("Ending date:", endDate);
+    const en = new Date(endDate)
+    const reste = calculerDifferenceEnJours(st, en);
+    console.log('Différence:', reste);
+    
     if(!valideValue) {
       Alert.alert(
         "Date invalide",
-        "La date de fin ne peut pas être antérieure à la date de début.",
+        "La date de fin ne peut pas être antérieure ou égale à la date de début.",
         [{ text: "OK", style: "default" }]
       );
     } else {
-      Alert.alert(
-        "Permission accordée",
-        "Motif: " + permissionMotif +
-        "\nDébut: " + st +
-        "\nFin: " + endingDate,
-        [{ text: "OK", style: "default" }]
-      );
+      console.log(st);
+      router.push({
+        pathname: '/Permission_ConfirmData',
+        params: { 
+          permissionMotif: reason,
+          startingDate: startDate,
+          endingDate: endDate
+        },
+      });
+      
+      // Alert.alert(
+      //   "Demande de permission",
+      //   "Motif: " + reason +
+      //   "\nDate: " + st.toLocaleDateString('mg-MG', options) +
+      //   "\nRetour au travail: " + endingDate.toLocaleDateString('mg-MG', options) +
+      //   "\nNombre de jour d'absence: " + reste,
+      //   [{ text: "OK", style: "default" }]
+      // );
     }
   }
 
   const onChange = (endDate: Date) => {
-    const start = new Date(startingDate); // 🔥 conversion ici
-    // setEndingDate(end);
+    const start = new Date(startingDate);
     setEndingDate(endDate);
     console.log("Starting date:",start);
     console.log("Ending date:",endDate);
     
-    if (start > endDate) {
+    if (start >= endDate) {
       console.log("Invalid Date");
       setValideValue(false)
     } else {
@@ -53,21 +84,18 @@ export default function Permission_EndingDate() {
   return (
     <View className="flex-1 bg-white px-20 pt-4 justify-between">
         <View className="items-center justify-center mt-5 mb-0">
-            <Text className="text-3xl font-bold">Fierana ({permissionMotif})</Text>
+            <Text className="text-3xl font-bold">Fangatahana fierana ({permissionMotif})</Text>
         </View>
 
-      {/* --- Champs de saisie --- */}
       <View className="m-0">
-        {/* <Text className="text-2xl font-bold mb-4">Demande de congé</Text> */}
+        <View className="items-center justify-center mb-5">
+          <Text className="text-2xl mb-2">Daty hiverenena miasa</Text>
+        </View>
 
-        <Text className="text-lg mb-2">Fiafarany</Text>
         <DateSelector  onChange={(date) => onChange(date)} />
-        {/* <DateSelector  onChange={(date) => setEndingDate(date)} /> */}
         <View className="flex-row justify-center mt-10">
             <Button fontSize="" onPress={ () => onClick(permissionMotif, startingDate, endingDate) } label="OK" className="mx-10" disable={!valideValue} />
-              {/* <View className="p-10 m-10"></View> */}
             <ButtonSecondary fontSize="" onPress={ () => router.back() } label="Hiverina" className="mx-10" />
-            {/* <Button onPress={ () => console.log("OK") } label="OK" /> */}
         </View>
       </View>
     </View>

@@ -13,7 +13,9 @@ export default function RootLayout() {
     >
       <UserProvider>
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login_matricule" />
           <Stack.Screen name="LoginScreen" />
+          <Stack.Screen name="Login_password" />
           <Stack.Screen name="Menu" />
           <Stack.Screen name="MenuConge" />
           <Stack.Screen name="CongeAnnuel_DateDebut" />
@@ -22,6 +24,7 @@ export default function RootLayout() {
           <Stack.Screen name="Permission_Reason" />
           <Stack.Screen name="Permission_StartingDate" />
           <Stack.Screen name="Permission_EndingDate" />
+          <Stack.Screen name="Permission_ConfirmData" />
           <Stack.Screen name="test" />
           <Stack.Screen name="index" />
         </Stack>

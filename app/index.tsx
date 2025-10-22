@@ -24,5 +24,6 @@ export default function Index() {
   }
   verifyInstallation();
 // const { login } = useAuth();
-  return <Redirect href="/LoginScreen" />
+  return <Redirect href="/Login_matricule" />
+  // return <Redirect href="/LoginScreen" />
 }

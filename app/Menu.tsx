@@ -55,7 +55,7 @@ export default function MenuScreen() {
               delay: buttons.length * 100,
             }}
           >
-            <SecondarySquareButton label="Hivoaka" onPress={() => router.push('/LoginScreen')} icon={"logout"} />
+            <SecondarySquareButton label="Hivoaka" onPress={() => router.push('/')} icon={"logout"} />
           </MotiView>
         </View>
         </ScrollView>
