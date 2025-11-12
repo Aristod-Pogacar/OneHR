@@ -25,6 +25,8 @@ export default function RootLayout() {
           <Stack.Screen name="Permission_StartingDate" />
           <Stack.Screen name="Permission_EndingDate" />
           <Stack.Screen name="Permission_ConfirmData" />
+          <Stack.Screen name="Permission2h_StartingHour" />
+          <Stack.Screen name="Permission2h_EndingHour" />
           <Stack.Screen name="test" />
           <Stack.Screen name="index" />
         </Stack>
