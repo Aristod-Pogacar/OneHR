@@ -11,7 +11,7 @@ export default function MenuConge() {
   const buttons = [
     { label: "Fialan- tsasatra isan-taona", route: "/CongeAnnuel_DateDebut", icon: "plane-car" },
     { label: "Fierana", route: "/Permission_Reason", icon: "calendar-remove" },
-    { label: "Fierana 2h", route: "", icon: "clock-time-three" },
+    { label: "Fierana 2h", route: "/Permission2h_StartingHour", icon: "clock-time-three" },
   ];
 
   return (
