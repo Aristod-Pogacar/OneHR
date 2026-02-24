@@ -14,9 +14,9 @@ async function post(data: { matricule: string; start_date: string; end_date: str
   await api.post('/leave/', data);
 }
 
-const leave_type = "Permission_AMD";
+const leave_type = "Local_Leave_AMD";
 
-export default function Permission_ConfirmData() {
+export default function CongeAnnuel_ConfirmData() {
 
   const options = {
     weekday: 'long',
@@ -32,7 +32,7 @@ export default function Permission_ConfirmData() {
   today.setMilliseconds(0);
 
   const router = useRouter();
-  const { permissionMotif, startingDate, endingDate } = useLocalSearchParams();
+  const { remark, startingDate, endingDate } = useLocalSearchParams();
   const { loggedUSer, bg1, bg2 } = useGlobal();
   const [loading, setLoading] = useState(false);
 
@@ -61,13 +61,13 @@ export default function Permission_ConfirmData() {
       "matricule": "" + loggedUSer.matricule,
       "start_date": "" + st.getMonth() + "/" + st.getDate() + "/" + st.getFullYear(),
       "end_date": "" + en.getMonth() + "/" + (en.getDate() - 1) + "/" + en.getFullYear(),
-      "comment": permissionMotif,
+      "comment": remark,
       "leave_type": leave_type
     }
-    post(data);
+    await post(data);
     Alert.alert(
       "Fangatahana fierana",
-      "Voaray ny fangatahana fierana (antony: \"" + permissionMotif +
+      "Voaray ny fangatahana fierana (fanamarihana: \"" + remark +
       "\") mandritry ny " + reste + " andro nataonao tompoko. Efa an-dalana ny fandinihina izany.",
       [{ text: "OK", style: "default" }]
     );
@@ -83,9 +83,9 @@ export default function Permission_ConfirmData() {
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.8, y: 0.8 }}
     >
-      <View className="flex-1 px-20 pt-4 justify-center">
+      <View className="flex-1 bg-white px-20 pt-4 justify-center">
         <View className="items-center justify-center mt-5 mb-5">
-          <Text className="text-3xl font-bold">Fangatahana fierana</Text>
+          <Text className="text-3xl font-bold">Fangatahana congé</Text>
         </View>
         <LoadingModal
           visible={loading}
@@ -95,14 +95,14 @@ export default function Permission_ConfirmData() {
 
         <View className="mt-5">
           <View className="mb-5">
-            <Text className="text-xl mb-2"><Text className="font-bold">Antony:</Text> {permissionMotif}</Text>
             <Text className="text-xl mb-2"><Text className="font-bold">Daty tsy hiasana:</Text> {st.toLocaleDateString('mg-MG', options as DateTimeFormatOptions)}</Text>
             <Text className="text-xl mb-2"><Text className="font-bold">Daty hiverenena miasa:</Text> {en.toLocaleDateString('mg-MG', options as DateTimeFormatOptions)}</Text>
             <Text className="text-xl mb-2"><Text className="font-bold">Andro tsy hiasana:</Text> {reste}</Text>
+            <Text className="text-xl mb-2"><Text className="font-bold">Fanamarihana:</Text> {remark}</Text>
           </View>
 
           <View className="flex-row justify-center mt-10">
-            <Button fontSize="" onPress={() => onClick()} label="OK" className="mx-10" />
+            <Button fontSize="" onPress={async () => await onClick()} label="OK" className="mx-10" />
             <ButtonSecondary fontSize="" onPress={() => router.back()} label="Hiverina" className="mx-10" />
           </View>
         </View>

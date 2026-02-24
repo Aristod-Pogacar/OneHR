@@ -2,14 +2,13 @@ import { useFonts } from 'expo-font';
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from './components/Button';
 import { Logo } from './components/Logo';
-import { useUser } from './contexts/UserContext';
 
 export default function LoginScreen() {
-  const { setUsername } = useUser();
+  // const { setUsername } = useUser();
 
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -20,7 +19,7 @@ export default function LoginScreen() {
     // Logique de connexion à implémenter ici
     console.log('Nom d\'utilisateur:', tempusername);
     console.log('Mot de passe:', password);
-    setUsername(tempusername);
+    // setUsername(tempusername);
     router.push('/Menu');
   };
   let [fontsLoaded] = useFonts({
@@ -51,27 +50,27 @@ export default function LoginScreen() {
           marginBottom: insets.bottom,
         }}
       >
-        <View className='w-full max-w-sm self-center items-center justify-center bg-white rounded-lg shadow-lg overflow-hidden'>
+        <View className='w-full max-w-md self-center items-start justify-start bg-white rounded-lg shadow-lg overflow-hidden'>
       <LinearGradient
         colors={["#ffffff", "#d9d9d9"]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.8, y: 0.8 }}
-        className="w-full h-full p-5 items-center justify-center"
+        className="w-full h-full p-5 items-center justify-start"
       >
           <Logo />
-          <Text className="text-3xl font-bold mb-3 font-museo">Hiditra</Text>
+          <Text className="text-3xl font-bold mb-3 font-museo">Login</Text>
 
           <View className="w-full mb-4">
-            <Text className="text-gray-600 mb-1">Anarana:</Text>
+            <Text className="text-gray-600 mb-1">Email:</Text>
             <TextInput
               className="w-full h-12 border border-gray-300 rounded-md p-3 text-base bg-gray-100"
               onChangeText={settempUsername}
               value={tempusername}
-              placeholder="Ampidiro eto ny anaranao"
+              placeholder="exemple@aquarabe.mg"
               autoCapitalize="none"
             />
           </View>
-
+{/* 
           <View className="w-full mb-6">
             <Text className="text-gray-600 mb-1">Teny miafina:</Text>
             <TextInput
@@ -81,13 +80,13 @@ export default function LoginScreen() {
               placeholder="Ampidiro eto ny teny miafina"
               secureTextEntry
             />
-          </View>
+          </View> */}
 
-          <Button onPress={handleLogin} label="Hiditra" />
+          <Button onPress={handleLogin} label="Suivant" />
 
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <Text className="text-sm text-sky-600">Adino ny teny miafina ?</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
       </LinearGradient>
       </View>

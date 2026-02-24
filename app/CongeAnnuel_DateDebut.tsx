@@ -1,87 +1,132 @@
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Audio } from "expo-av";
+import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useRef, useState } from "react";
+import { Alert, Text, View } from "react-native";
+import { useGlobal } from "./Providers/GlobalProvider";
 import { Button } from "./components/Button";
 import { ButtonSecondary } from "./components/ButtonSecondary";
-import { KeyboardButton } from "./components/KeyboardButton";
+import DateSelector from "./components/DateSelector";
 
 export default function CongeAnnuel() {
+  const today = new Date();
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
+  today.setMilliseconds(0);
   const router = useRouter();
-  const [startDate, setStartDate] = useState(""); // stocke la date de début (texte)
-  const [endDate, setEndDate] = useState("");     // stocke la date de fin (texte)
-  const [activeField, setActiveField] = useState<"start" | "end">("start"); // champ sélectionné
+  const [selectedDate, setSelectedDate] = useState<Date>(today);
+  const [valideValue, setValideValue] = useState<boolean>(true);
+  const soundRef = useRef<Audio.Sound | null>(null);
 
-  const buttons = [
-    "1","2","3","4",
-    "5","6","7","8",
-    "9","0","/","FAFAINA",
-  ];
+  const voice = require("../assets/audios/Début Tsy fiasana.wav");
 
-  // ✅ Ajout d’un chiffre ou suppression
-  const handleKeyPress = (label: string) => {
-    if (label === "FAFAINA") {
-      if (activeField === "start") setStartDate(startDate.slice(0, -1));
-      else setEndDate(endDate.slice(0, -1));
-    } else {
-      if (activeField === "start") setStartDate(startDate + label);
-      else setEndDate(endDate + label);
+  const startLoopSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        voice,
+        {
+          shouldPlay: true,
+          isLooping: true,
+          volume: 1.0,
+        }
+      );
+
+      soundRef.current = sound;
+    } catch (err) {
+      console.log("Erreur audio:", err);
     }
   };
 
+  const stopLoopSound = async () => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    } catch (e) {
+      console.log("Son déjà arrêté");
+    }
+  };
+
+  // 🎯 Démarre quand l'écran est actif / s'arrête quand on quitte
+  useFocusEffect(
+    useCallback(() => {
+      startLoopSound();
+
+      return () => {
+        stopLoopSound(); // 🔥 stop auto quand on quitte l'écran
+      };
+    }, [])
+  );
+
+  const { bg1, bg2, loggedUSer } = useGlobal();
+
+  if (loggedUSer == null) {
+    router.push('/Login_matricule');
+    return;
+  }
+
+  const onChange = (startDate: Date) => {
+
+    setSelectedDate(startDate);
+    if (today > startDate) {
+      console.log("Invalid Date");
+      setValideValue(false)
+    } else {
+      console.log("Valid Date");
+      setValideValue(true)
+    }
+
+  }
+
+  const clicked = (route: any, startingDate: any) => {
+
+    if (!valideValue) {
+      Alert.alert(
+        "Date invalide",
+        "La date de fin ne peut pas être antérieure à la date d'aujourd'hui.",
+        [{ text: "OK", style: "default" }]
+      );
+    } else {
+      router.push({
+        pathname: route,
+        params: {
+          startingDate: startingDate
+        },
+      });
+    }
+
+  }
+
   return (
-    <View className="flex-1 bg-white px-20 pt-4 justify-between">
+    <LinearGradient
+      colors={[bg1, bg2]}
+      className="flex-1"
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.8, y: 0.8 }}
+    >
+      <View className="flex-1 px-20 pt-4 justify-center">
         <View className="items-center justify-center mt-5 mb-0">
-            <Text className="text-3xl font-bold">Hangataka fialan-tsasatra isan-taona</Text>
+          <Text className="text-3xl font-bold">Fangatahana Congé</Text>
         </View>
-      
-      {/* --- Champs de saisie --- */}
-      <View className="m-0">
-        {/* <Text className="text-2xl font-bold mb-4">Demande de congé</Text> */}
 
-        <Text className="text-lg mb-2">Fanombohany</Text>
-        <Pressable onPress={() => setActiveField("start")}>
-            <TextInput
-                value={startDate}
-                placeholder="JJ/MM/AAAA"
-                editable={false}
-                className={`w-full h-12 border rounded-md p-3 mb-3 bg-gray-100 ${activeField === "start" ? "border-blue-500" : "border-gray-300"}`}
-            />
-        </Pressable>
-        {/* <Text className="text-lg mb-2">Fiafarany</Text>
-        <Pressable onPress={() => setActiveField("end")}>
-            <TextInput
-                value={endDate}
-                placeholder="JJ/MM/AAAA"
-                editable={false}
-                className={`border p-3 rounded-xl mb-4 text-lg ${activeField === "end" ? "border-blue-500" : "border-gray-300"}`}
-            />
-        </Pressable> */}
-        <View className="flex-row justify-center">
-            <Button fontSize="" onPress={ () => router.push('/CongeAnnuel_DateFin') } label="OK" className="mx-10" />
-              {/* <View className="p-10 m-10"></View> */}
-            <ButtonSecondary fontSize="" onPress={ () => router.back() } label="Hiverina" className="mx-10" />
-            {/* <Button onPress={ () => console.log("OK") } label="OK" /> */}
-        </View>
-      </View>
-
-      {/* --- Clavier personnalisé --- */}
-      <View className="border-t border-y border-r border-l border-gray-300 pb-5">
-        <ScrollView>
-          <View className="flex-row flex-wrap justify-center m-0 p-0">
-            {buttons.map((label, index) => (
-              <KeyboardButton
-                key={index}
-                label={label}
-                onPress={() => handleKeyPress(label)} />
-            ))}
+        {/* --- Champs de saisie --- */}
+        <View className="m-0">
+          {/* <Text className="text-2xl font-bold mb-4">Demande de congé</Text> */}
+          <View className="items-center justify-center mb-5">
+            <Text className="text-2xl mb-2">Daty tsy hiasana</Text>
           </View>
-        </ScrollView>
+          <DateSelector onChange={(date) => onChange(date)} />
+          <View className="flex-row justify-center mt-10">
+            <Button fontSize="" onPress={() => clicked('/CongeAnnuel_DateFin', selectedDate)} label="OK" className="mx-10" />
+            {/* <View className="p-10 m-10"></View> */}
+            <ButtonSecondary fontSize="" onPress={() => router.back()} label="Hiverina" className="mx-10" />
+            {/* <Button onPress={ () => console.log("OK") } label="OK" /> */}
+          </View>
+        </View>
       </View>
-      {/* <View className="justify-center">
-        <ScrollView className="flex-row flex-wrap justify-center">
-
-          </ScrollView>
-      </View> */}
-    </View>
+    </LinearGradient>
   );
 }

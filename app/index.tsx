@@ -14,7 +14,7 @@ export default function Index() {
     MuseoModerno_700Bold: require('../assets/fonts/MuseoModerno-Bold.ttf'),
     // Add other MuseoModerno weights/styles you want to use
   });
-  
+
   if (!fontsLoaded) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -23,7 +23,7 @@ export default function Index() {
     );
   }
   verifyInstallation();
-// const { login } = useAuth();
-  return <Redirect href="/Login_matricule" />
-  // return <Redirect href="/LoginScreen" />
+  // const { login } = useAuth();
+  // return <Redirect href="/Loading" />
+  return <Redirect href="/LoginScreen" />
 }
