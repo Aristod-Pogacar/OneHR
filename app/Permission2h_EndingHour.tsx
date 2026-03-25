@@ -2,17 +2,16 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Print from "expo-print";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Alert, Text, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { useGlobal } from "./Providers/GlobalProvider";
 import { Button } from "./components/Button";
 import { ButtonSecondary } from "./components/ButtonSecondary";
 import HourSelector from "./components/HourSelector";
+import { LoadingModal } from "./components/LoadingModal";
 import api from "./utils/axios";
-import { useRef } from "react";
 
-const qrRef = useRef<any>(null);
 
 async function post(data: {
   reason?: string;
@@ -26,7 +25,7 @@ async function post(data: {
   return await api.post('/permission2h/', data);
 }
 
-const getQRBase64 = (): Promise<string> => {
+const getQRBase64 = (qrRef: any): Promise<string> => {
   return new Promise((resolve) => {
     qrRef.current?.toDataURL((data: string) => {
       resolve(`data:image/png;base64,${data}`);
@@ -41,9 +40,9 @@ async function exportTicket6cmPDF(data: {
   heureDebut: string;
   heureFin: string;
   id: string;
-}) {
+}, qrRef: any) {
   // ✅ Génération QR Code en base64
-  const qrBase64 = await getQRBase64();
+  const qrBase64 = await getQRBase64(qrRef);
 
   // ✅ HTML spécial ticket 60mm
   const html = `
@@ -132,20 +131,17 @@ export default function Permission2h_EndingHour() {
   // today.setMilliseconds(0);
   const router = useRouter();
   const { startingHour, startingMinute } = useLocalSearchParams();
-  console.log('====================================');
+  console.log("STARTING MINUTE:", startingMinute)
   const default_hour = Number.parseInt(startingHour.toString()) + 2;
-  console.log("Hour ending:", default_hour);
-  console.log('====================================');
-  console.log('====================================');
   const default_minute = Number.parseInt(startingMinute.toString());
-  console.log("Minute ending:", default_minute);
-  console.log('====================================');
   const [endingHour, setEndingHour] = useState<number>(default_hour);
   const [endingMinute, setEndingMinute] = useState<number>(Number.parseInt(startingMinute.toString()));
   const [valideValue, setValideValue] = useState<boolean>(true);
   const [permissionID, setPermissionID] = useState<string>("1988417");
   const [error, setError] = useState("");
   const apiUrl = process.env.EXPO_PUBLIC_API_URL + ":" + process.env.EXPO_PUBLIC_PORT + "/";
+  const [loading, setLoading] = useState(false);
+  const qrRef = useRef<any>(null);
 
   const { bg1, bg2, loggedUSer } = useGlobal();
 
@@ -179,10 +175,6 @@ export default function Permission2h_EndingHour() {
       console.log("Invalid Time");
       setValideValue(false)
       setError("L'heure d'arrivé ne peut pas être antérieure à l'heure de départ.")
-    } else if (diff > 120) {
-      console.log("Invalid Time");
-      setValideValue(false)
-      setError("L'heure d'arrivé doit être au plus tard 2h après l'heure de départ.")
     } else {
       console.log("Valid Date");
       setValideValue(true)
@@ -191,15 +183,32 @@ export default function Permission2h_EndingHour() {
   }
 
   const clicked = async () => {
+    console.log("Starting Hour:", startingHour);
+    console.log("Starting Minute:", startingMinute);
+    console.log("Ending Hour:", endingHour);
+    console.log("Ending Minute:", endingMinute);
+
+    const diff = getTimeDiff(Number.parseInt(startingHour.toString()), Number.parseInt(startingMinute.toString()), endingHour, endingMinute)
+    console.log("Diff=", diff);
+
+    setLoading(true);
 
     if (!valideValue) {
+      setLoading(false);
       Alert.alert(
         "Heure invalide",
         error,
         [{ text: "OK", style: "default" }]
       );
+    } else if (diff > 120) {
+      setLoading(false);
+      Alert.alert(
+        "Heure invalide",
+        "L'heure d'arrivé doit être au plus tard 2h après l'heure de départ.",
+        [{ text: "OK", style: "default" }]
+      );
     } else {
-      await post({
+      const permissionData = {
         reason: "Permission 2h",
         date: "" + today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0"),
         startTime: String(startingHour).padStart(2, "0") + ":" + String(startingMinute).padStart(2, "0"),
@@ -207,25 +216,52 @@ export default function Permission2h_EndingHour() {
         expectedStartTime: String(startingHour).padStart(2, "0") + ":" + String(startingMinute).padStart(2, "0"),
         expectedEndTime: String(endingHour).padStart(2, "0") + ":" + String(endingMinute).padStart(2, "0"),
         employee: loggedUSer.matricule
-      }).then((permission2h) => {
-        console.log("Permission 2h:", permission2h.data);
+      };
+      await post(permissionData).then(async (permission2h) => {
         setPermissionID(permission2h.data.id)
         const date = new Date(permission2h.data.date)
-        exportTicket6cmPDF({
+        const qrData = {
           nom: permission2h.data.employee.fullname,
           matricule: permission2h.data.employee.matricule,
           date: String(date.getDate()).padStart(2, '0') + "/" + String(date.getMonth()).padStart(2, '0') + "/" + date.getFullYear(),
           heureDebut: permission2h.data.startTime,
           heureFin: permission2h.data.endTime,
           id: permission2h.data.id
-        })
+        }
+        await exportTicket6cmPDF(qrData, qrRef)
+        setLoading(false);
         Alert.alert(
           "Permission 2h",
           "Demande de permission 2h accordée !",
           [{ text: "OK", style: "default" }]
         );
         router.push("/Menu");
-      })
+      }).catch((error) => {
+        if (error.response.status == 400) {
+          if (error.response.data.message == "Leave dates overlap with existing leave") {
+            Alert.alert(
+              "Tsy voaray ny fangatahana",
+              "Efa misy fangatahana fierana na conge hafa amin'io daty io tompoko.",
+              [{ text: "OK", style: "default" }]
+            );
+            setLoading(false);
+          } else if (error.response.data.message == "Local leave solde not enough" || error.response.data.message == "Permission solde not enough") {
+            setLoading(false);
+            Alert.alert(
+              "Tsy voaray ny fangatahana",
+              "Tsy ampy ny solde conge anao tompoko.",
+              [{ text: "OK", style: "default" }]
+            );
+          }
+        }
+        console.log("ERROR:", error);
+        setLoading(false);
+        Alert.alert(
+          "Tsy voaray ny fangatahana",
+          "Tsy voaray ny fangatahana tompoko. Avereno azafady",
+          [{ text: "OK", style: "default" }]
+        );
+      });
     }
 
   }
@@ -241,6 +277,11 @@ export default function Permission2h_EndingHour() {
         <View className="items-center justify-center mt-5 mb-0">
           <Text className="text-3xl font-bold">Fangatahana fierana 2h</Text>
         </View>
+        <LoadingModal
+          visible={loading}
+          // message="An-dala-mpiakarakarana ny fangatahanao tompoko. Mahadrasa kely..."
+          message="Loading..."
+        />
 
         <View style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}>
           <QRCode

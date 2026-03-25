@@ -3,25 +3,25 @@ import React, { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type DateSelectorProps = {
-    onChange?: (date: Date) => void; // callback optionnelle
-    defaultValue?: Date
+  onChange?: (date: Date) => void; // callback optionnelle
+  defaultValue?: Date
 };
-  
-export default function DateSelector({ onChange, defaultValue  = new Date()}: DateSelectorProps) {
+
+export default function DateSelector({ onChange, defaultValue = new Date() }: DateSelectorProps) {
   const [day, setDay] = useState(defaultValue.getDate());
   const [month, setMonth] = useState(defaultValue.getMonth() + 1);
   const [year, setYear] = useState(defaultValue.getFullYear());
   const gradientColor = ["#0422AE", "#01016E"] as const
 
   const monthNames = [
-    "Janvier","Février","Mars","Avril","Mai","Juin",
-    "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
   ];
   const adjustDayForMonth = (day: number, month: number, year: number) => {
     const maxDays = new Date(year, month, 0).getDate(); // dernier jour du mois
     return Math.min(day, maxDays); // renvoie le jour valide
   };
-  
+
   const updateDate = (d: number, m: number, y: number) => {
     const newDate = new Date(y, m - 1, d);
     if (onChange) onChange(newDate); // 🔥 envoie la date vers le parent
@@ -45,7 +45,7 @@ export default function DateSelector({ onChange, defaultValue  = new Date()}: Da
     let newMonth = month < 12 ? month + 1 : 1;
     setMonth(newMonth);
     const maxD = adjustDayForMonth(day, newMonth, year)
-    if (day > maxD ) {
+    if (day > maxD) {
       updateDate(maxD, newMonth, year);
       setDay(maxD)
     } else {
@@ -57,7 +57,7 @@ export default function DateSelector({ onChange, defaultValue  = new Date()}: Da
     let newMonth = month > 1 ? month - 1 : 12;
     setMonth(newMonth);
     const maxD = adjustDayForMonth(day, newMonth, year)
-    if (day > maxD ) {
+    if (day > maxD) {
       updateDate(maxD, newMonth, year);
       setDay(maxD)
     } else {
@@ -69,7 +69,7 @@ export default function DateSelector({ onChange, defaultValue  = new Date()}: Da
     let newYear = year + 1;
     setYear(newYear);
     const maxD = adjustDayForMonth(day, month, newYear)
-    if (day > maxD ) {
+    if (day > maxD) {
       updateDate(maxD, month, newYear);
       setDay(maxD)
     } else {
@@ -81,7 +81,7 @@ export default function DateSelector({ onChange, defaultValue  = new Date()}: Da
     let newYear = year - 1;
     setYear(newYear);
     const maxD = adjustDayForMonth(day, month, newYear)
-    if (day > maxD ) {
+    if (day > maxD) {
       updateDate(maxD, month, newYear);
       setDay(maxD)
     } else {
@@ -94,76 +94,76 @@ export default function DateSelector({ onChange, defaultValue  = new Date()}: Da
       {/* Jour */}
       <View className="items-center mx-1">
         <TouchableOpacity onPress={incrementDay} className="shadow-xl rounded-xl overflow-hidden">
-            <LinearGradient
-                colors={gradientColor}
-                // colors={["#ffffff", "#ffffff"]}
-                start={{ x: 0.2, y: 0.2 }}
-                end={{ x: 0.8, y: 0.8 }}
-                className="p-6 items-center justify-center"
-            >
-              <Text className="text-2xl font-bold text-white">▲</Text>
+          <LinearGradient
+            colors={gradientColor}
+            // colors={["#ffffff", "#ffffff"]}
+            start={{ x: 0.2, y: 0.2 }}
+            end={{ x: 0.8, y: 0.8 }}
+            className="p-6 items-center justify-center"
+          >
+            <Text className="text-2xl font-bold text-white">▲</Text>
           </LinearGradient>
         </TouchableOpacity>
         <Text className="text-3xl font-extrabold my-4 p-2">{day}</Text>
         <TouchableOpacity onPress={decrementDay} className="shadow-xl rounded-xl overflow-hidden">
-            <LinearGradient
+          <LinearGradient
             colors={gradientColor}
             start={{ x: 0.2, y: 0.2 }}
             end={{ x: 0.8, y: 0.8 }}
             className="p-6 items-center justify-center"
-            >
-                <Text className="text-2xl font-bold text-white">▼</Text>
-            </LinearGradient>
+          >
+            <Text className="text-2xl font-bold text-white">▼</Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
 
       {/* Mois */}
       <View className="items-center mx-1 w-80">
         <TouchableOpacity onPress={incrementMonth} className="bg-green-300 shadow-xl rounded-xl overflow-hidden">
-            <LinearGradient
+          <LinearGradient
             colors={gradientColor}
             start={{ x: 0.2, y: 0.2 }}
             end={{ x: 0.8, y: 0.8 }}
             className="p-6 items-center justify-center"
-            >
-              <Text className="text-2xl font-bold text-white">▲</Text>
-            </LinearGradient>
+          >
+            <Text className="text-2xl font-bold text-white">▲</Text>
+          </LinearGradient>
         </TouchableOpacity>
         <Text className="text-3xl font-extrabold my-4 p-2">{monthNames[month - 1]}</Text>
         <TouchableOpacity onPress={decrementMonth} className="bg-green-300 shadow-xl rounded-xl overflow-hidden">
-            <LinearGradient
+          <LinearGradient
             colors={gradientColor}
             start={{ x: 0.2, y: 0.2 }}
             end={{ x: 0.8, y: 0.8 }}
             className="p-6 items-center justify-center"
-            >
-              <Text className="text-2xl font-bold text-white">▼</Text>
-            </LinearGradient>
+          >
+            <Text className="text-2xl font-bold text-white">▼</Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
 
       {/* Année */}
       <View className="items-center mx-1">
         <TouchableOpacity onPress={incrementYear} className="bg-purple-300 shadow-xl rounded-xl overflow-hidden">
-            <LinearGradient
+          <LinearGradient
             colors={gradientColor}
             start={{ x: 0.2, y: 0.2 }}
             end={{ x: 0.8, y: 0.8 }}
             className="p-6 items-center justify-center"
-            >
-              <Text className="text-2xl font-bold text-white">▲</Text>
+          >
+            <Text className="text-2xl font-bold text-white">▲</Text>
           </LinearGradient>
         </TouchableOpacity>
         <Text className="text-3xl font-extrabold my-4 p-2">{year}</Text>
         <TouchableOpacity onPress={decrementYear} className="bg-purple-300 shadow-xl rounded-xl overflow-hidden">
-            <LinearGradient
+          <LinearGradient
             colors={gradientColor}
             start={{ x: 0.2, y: 0.2 }}
             end={{ x: 0.8, y: 0.8 }}
             className="p-6 items-center justify-center"
-            >
-                <Text className="text-2xl font-bold text-white">▼</Text>
-            </LinearGradient>
+          >
+            <Text className="text-2xl font-bold text-white">▼</Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </View>

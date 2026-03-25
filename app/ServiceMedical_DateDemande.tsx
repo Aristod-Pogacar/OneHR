@@ -6,6 +6,7 @@ import { useGlobal } from "./Providers/GlobalProvider";
 import { Button } from "./components/Button";
 import { ButtonSecondary } from "./components/ButtonSecondary";
 import DateSelector from "./components/DateSelector";
+import { LoadingModal } from "./components/LoadingModal";
 import api from "./utils/axios";
 
 type DateTimeFormatOptions = Intl.DateTimeFormatOptions;
@@ -32,6 +33,7 @@ export default function ServiceMedical_DateDemande() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [valideValue, setValideValue] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false);
 
   const { reason } = useLocalSearchParams();
 
@@ -44,7 +46,7 @@ export default function ServiceMedical_DateDemande() {
 
   const onChange = (date: Date) => {
 
-    setSelectedDate(date);    
+    setSelectedDate(date);
     if (today > date) {
       console.log("Invalid Date");
       setValideValue(false)
@@ -56,8 +58,10 @@ export default function ServiceMedical_DateDemande() {
   }
 
   const clicked = async (route: any, date: any) => {
+    setLoading(true);
 
-    if(!valideValue) {
+    if (!valideValue) {
+      setLoading(false);
       Alert.alert(
         "Diso ny daty azafady",
         "Efa lasa ny daty nampidirinao tompoko ! Avereno azafady.",
@@ -65,14 +69,14 @@ export default function ServiceMedical_DateDemande() {
       );
     } else {
       const data = {
-          "employee": loggedUSer.matricule,
-          "date": date.getFullYear() + "-" + (date.getMonth() + 1).toString().padStart(2, '0') + "-" + date.getDate().toString().padStart(2, '0'),
-          "reason": reason
+        "employee": loggedUSer.matricule,
+        "date": date.getFullYear() + "-" + (date.getMonth() + 1).toString().padStart(2, '0') + "-" + date.getDate().toString().padStart(2, '0'),
+        "reason": reason
       }
       console.log("DATA: ", data);
       await post(data).then((result) => {
         console.log("RESULTS: ", result);
-        
+        setLoading(false);
         Alert.alert(
           "Fisoratana anarana ao amin'ny " + medicalService,
           "Voasoratra ao amin'ny " + medicalService + " ianao noho ny antony \"" + reason + "\" ny " + date.toLocaleDateString('mg-MG', options as DateTimeFormatOptions) + ".",
@@ -82,9 +86,10 @@ export default function ServiceMedical_DateDemande() {
           pathname: route,
         });
       }).catch((error) => {
+        setLoading(false);
         Alert.alert(
           "Erreur !",
-          "Une erreur est survenue lors de la réservation.",
+          "Tsy tontosa ny fangatahanao, mamerena azafady.",
           [{ text: "OK", style: "default" }]
         );
         console.log(error);
@@ -100,26 +105,32 @@ export default function ServiceMedical_DateDemande() {
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.8, y: 0.8 }}
     >
-    <View className="flex-1 px-20 pt-4 justify-center">
+      <View className="flex-1 px-20 pt-4 justify-center">
         <View className="items-center justify-center mt-5 mb-0">
-            <Text className="text-3xl font-bold">{medicalService}: {reason}</Text>
+          <Text className="text-3xl font-bold">{medicalService}: {reason}</Text>
         </View>
+        <LoadingModal
+          visible={loading}
+          // message="An-dala-mpiakarakarana ny fangatahanao tompoko. Mahadrasa kely..."
+          message="Loading..."
+        />
 
-      {/* --- Champs de saisie --- */}
-      <View className="m-0">
-        {/* <Text className="text-2xl font-bold mb-4">Demande de congé</Text> */}
-        <View className="items-center justify-center mb-5">
-          <Text className="text-2xl mb-2">Daty:</Text>
-        </View>
-        <DateSelector  onChange={(date) => onChange(date)} />
-        <View className="flex-row justify-center mt-10">
-            <Button fontSize="" onPress={ () => clicked('/MenuServiceMedical', selectedDate) } label="OK" className="mx-10" />
-              {/* <View className="p-10 m-10"></View> */}
-            <ButtonSecondary fontSize="" onPress={ () => router.back() } label="Hiverina" className="mx-10" />
+
+        {/* --- Champs de saisie --- */}
+        <View className="m-0">
+          {/* <Text className="text-2xl font-bold mb-4">Demande de congé</Text> */}
+          <View className="items-center justify-center mb-5">
+            <Text className="text-2xl mb-2">Daty:</Text>
+          </View>
+          <DateSelector onChange={(date) => onChange(date)} />
+          <View className="flex-row justify-center mt-10">
+            <Button fontSize="" onPress={() => clicked('/MenuServiceMedical', selectedDate)} label="OK" className="mx-10" />
+            {/* <View className="p-10 m-10"></View> */}
+            <ButtonSecondary fontSize="" onPress={() => router.back()} label="Hiverina" className="mx-10" />
             {/* <Button onPress={ () => console.log("OK") } label="OK" /> */}
+          </View>
         </View>
       </View>
-    </View>
     </LinearGradient>
   );
 }

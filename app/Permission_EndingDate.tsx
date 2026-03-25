@@ -29,7 +29,7 @@ export default function Permission_EndingDate() {
 
   const router = useRouter();
   const { permissionMotif, startingDate, maxDay } = useLocalSearchParams();
-  
+
   const defaultDate = new Date(startingDate.toString());
   defaultDate.setDate(defaultDate.getDate() + Number.parseInt(maxDay.toString()))
   console.log('====================================');
@@ -39,7 +39,7 @@ export default function Permission_EndingDate() {
   const [endingDate, setEndingDate] = useState<Date>(defaultDate);
   const [valideValue, setValideValue] = useState<Boolean>(true);
   const [message, setMessage] = useState<string>("");
-  
+
   const { bg1, bg2, loggedUSer } = useGlobal();
 
   if (loggedUSer == null) {
@@ -59,8 +59,8 @@ export default function Permission_EndingDate() {
     const en = new Date(endDate)
     const reste = calculerDifferenceEnJours(st, en);
     console.log('Différence:', reste);
-    
-    if(!valideValue) {
+
+    if (!valideValue) {
       Alert.alert(
         "Date invalide",
         message,
@@ -70,13 +70,13 @@ export default function Permission_EndingDate() {
       console.log(st);
       router.push({
         pathname: '/Permission_ConfirmData',
-        params: { 
+        params: {
           permissionMotif: reason,
           startingDate: startDate,
           endingDate: endDate
         },
       });
-      
+
       // Alert.alert(
       //   "Demande de permission",
       //   "Motif: " + reason +
@@ -91,14 +91,14 @@ export default function Permission_EndingDate() {
   const onChange = (endDate: Date) => {
     const start = new Date(startingDate.toString());
     setEndingDate(endDate);
-    console.log("Starting date:",start);
-    console.log("Ending date:",endDate);
-    
-    if (start >= endDate ) {
+    console.log("Starting date:", start);
+    console.log("Ending date:", endDate);
+
+    if (start >= endDate) {
       console.log("Invalid Date");
       setMessage("La date de fin ne peut pas être antérieure ou égale à la date de début.");
       setValideValue(false)
-    } else if (calculerDifferenceEnJours(start, endDate) > Number.parseInt(maxDay.toString()) ) {
+    } else if (calculerDifferenceEnJours(start, endDate) > Number.parseInt(maxDay.toString())) {
       console.log("Invalid Date");
       setMessage("La date de fin ne peut pas être plus de " + maxDay + " jours après la date de début.");
       setValideValue(false)
@@ -115,23 +115,23 @@ export default function Permission_EndingDate() {
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.8, y: 0.8 }}
     >
-    <View className="flex-1 px-20 pt-4 justify-center">
+      <View className="flex-1 px-20 pt-4 justify-center">
         <View className="items-center justify-center mt-5 mb-0">
-            <Text className="text-3xl font-bold">Fangatahana fierana ({permissionMotif})</Text>
+          <Text className="text-3xl font-bold">Fangatahana fierana ({permissionMotif})</Text>
         </View>
 
-      <View className="m-0">
-        <View className="items-center justify-center mb-5">
-          <Text className="text-2xl mb-2">Daty hiverenena miasa</Text>
-        </View>
+        <View className="m-0">
+          <View className="items-center justify-center mb-5">
+            <Text className="text-2xl mb-2">Daty hiverenena miasa</Text>
+          </View>
 
-        <DateSelector defaultValue={defaultDate} onChange={(date) => onChange(date)} />
-        <View className="flex-row justify-center mt-10">
-            <Button fontSize="" onPress={ () => onClick(permissionMotif, startingDate, endingDate) } label="OK" className="mx-10" disable={!valideValue} />
-            <ButtonSecondary fontSize="" onPress={ () => router.back() } label="Hiverina" className="mx-10" />
+          <DateSelector defaultValue={defaultDate} onChange={(date) => onChange(date)} />
+          <View className="flex-row justify-center mt-10">
+            <Button fontSize="" onPress={() => onClick(permissionMotif, startingDate, endingDate)} label="OK" className="mx-10" disable={!valideValue} />
+            <ButtonSecondary fontSize="" onPress={() => router.back()} label="Hiverina" className="mx-10" />
+          </View>
         </View>
       </View>
-    </View>
     </LinearGradient>
   );
 }

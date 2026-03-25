@@ -120,6 +120,7 @@ export default function CongeAnnuel_DateFin() {
 
   const onChange = (endDate: Date) => {
     const start = new Date(startingDate.toString());
+    endDate.setDate(endDate.getDate() + 1)
     setEndingDate(endDate);
     console.log("Starting date:", start);
     console.log("Ending date:", endDate);

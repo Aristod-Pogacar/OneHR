@@ -1,17 +1,17 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import { Alert, Text, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
 import { Button } from "./components/Button";
 import { ButtonSecondary } from "./components/ButtonSecondary";
-import api from "./utils/axios";
 import { LoadingModal } from "./components/LoadingModal";
-import { useState } from "react";
+import api from "./utils/axios";
 
 type DateTimeFormatOptions = Intl.DateTimeFormatOptions;
 
 async function post(data: { matricule: string; start_date: string; end_date: string; comment: any; leave_type: string; }) {
-  await api.post('/leave/', data);
+  return await api.post('/leave/', data);
 }
 
 const leave_type = "Local_Leave_AMD";
@@ -51,6 +51,9 @@ export default function CongeAnnuel_ConfirmData() {
   const st = new Date(startingDate.toString())
   const en = new Date(endingDate.toString())
   const reste = calculerDifferenceEnJours(st, en);
+  console.log("st:", st);
+  console.log("en:", en);
+  console.log("reste:", reste);
 
   en.toLocaleDateString()
 
@@ -64,16 +67,42 @@ export default function CongeAnnuel_ConfirmData() {
       "comment": remark,
       "leave_type": leave_type
     }
-    await post(data);
-    Alert.alert(
-      "Fangatahana fierana",
-      "Voaray ny fangatahana fierana (fanamarihana: \"" + remark +
-      "\") mandritry ny " + reste + " andro nataonao tompoko. Efa an-dalana ny fandinihina izany.",
-      [{ text: "OK", style: "default" }]
-    );
-    setLoading(false);
+    await post(data).then(async (response) => {
+      if (response.status == 400) {
+        if (response.data.message == "Leave dates overlap with existing leave") {
+          Alert.alert(
+            "Tsy voaray ny fangatahana",
+            "Efa misy fangatahana fierana na conge hafa amin'io daty io tompoko.",
+            [{ text: "OK", style: "default" }]
+          );
+          setLoading(false);
+        } else if (response.data.message == "Local leave solde not enough" || response.data.message == "Permission solde not enough") {
+          setLoading(false);
+          Alert.alert(
+            "Tsy voaray ny fangatahana",
+            "Tsy ampy ny solde conge anao tompoko.",
+            [{ text: "OK", style: "default" }]
+          );
+        }
+      } else if (response.status == 201) {
+        Alert.alert(
+          "Fangatahana fierana",
+          "Voaray ny fangatahana fierana (fanamarihana: \"" + remark +
+          "\") mandritry ny " + reste + " andro nataonao tompoko. Efa an-dalana ny fandinihina izany.",
+          [{ text: "OK", style: "default" }]
+        );
+        setLoading(false);
 
-    router.push('/Menu');
+        router.push('/Menu');
+      } else {
+        Alert.alert(
+          "Tsy voaray ny fangatahana",
+          "Tsy voaray ny fangatahana tompoko. Avereno azafady",
+          [{ text: "OK", style: "default" }]
+        );
+        setLoading(false);
+      }
+    });
   }
 
   return (

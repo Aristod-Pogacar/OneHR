@@ -222,9 +222,9 @@ export default function MenuScreen() {
     }
   }, [loggedUSer]);
 
-  console.log("loggedUSer:", loggedUSer);
-  console.log("GLOBAL PREFIX MATRICULE:", prefixMatricule);
-  console.log("GLOBAL SERVICE MEDICAL:", medicalService);
+  // console.log("loggedUSer:", loggedUSer);
+  // console.log("GLOBAL PREFIX MATRICULE:", prefixMatricule);
+  // console.log("GLOBAL SERVICE MEDICAL:", medicalService);
 
   const buttons = [
     { label: "Tsy fiasana (congé)", route: "/MenuConge", icon: "calendar-remove", firstColor: "#1432BF", secondColor: "#01016E", voice: require("../assets/audios/menu-conge.wav"), typeButton: "Leave" },
@@ -235,12 +235,26 @@ export default function MenuScreen() {
   ];
 
   const logout = async () => {
+    await stopGuidance();
     await stopVoice();
     await stopGuided();
     router.push('/');
     setLoggedUser(null);
   }
+  const stopGuidance = async () => {
 
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (soundRef.current) {
+      await soundRef.current.stopAsync();
+      await soundRef.current.unloadAsync();
+      soundRef.current = null;
+    }
+
+  };
   const click = async (route: string, typeButton: string) => {
     setLoading(true);
     await stopVoice();

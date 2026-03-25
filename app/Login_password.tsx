@@ -11,7 +11,7 @@ import api from "./utils/axios";
 
 async function compare(data: any): Promise<any> {
   try {
-    const path = '/admin/compare';
+    const path = '/employee/compare';
     const response = await api.post(path, {
       matricule: data.matricule,
       password: data.password
@@ -84,6 +84,7 @@ export default function Login_password() {
   };
 
   const onPress = async () => {
+    console.log('PASSWORD:', password);
     setLoading(true);
     const test = await compare({
       matricule: jsonUser.matricule,
@@ -101,7 +102,7 @@ export default function Login_password() {
       return;
     }
     // if (password === jsonUser.appPassword) {
-    if (test.isAdmin) {
+    if (test.isEmployee) {
       // puppeteerLogin(puppeteerSession, {
       //   matricule: jsonUser.matricule,
       //   password: jsonUser.password

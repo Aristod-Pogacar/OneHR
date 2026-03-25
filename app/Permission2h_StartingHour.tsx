@@ -8,15 +8,24 @@ import { ButtonSecondary } from "./components/ButtonSecondary";
 import HourSelector from "./components/HourSelector";
 
 export default function Permission2h_StartingHour() {
+  const arrondirAuMultipleDe5 = (nombre: number) => Math.ceil(nombre / 5) * 5;
   const today = new Date();
-  console.log("Hour:", today.getHours());
-  console.log("Minute:", today.getMinutes());
-  
+
   today.setSeconds(0);
   today.setMilliseconds(0);
+  var minute = arrondirAuMultipleDe5(today.getMinutes());
+  var hour = today.getHours()
+  if (minute == 60) {
+    minute = 0;
+    hour++;
+    today.setHours(today.getHours() + 1);
+  }
   const router = useRouter();
-  const [startingHour, setStartingHour] = useState<number>(today.getHours());
-  const [startingMinute, setStartingMinute] = useState<number>(today.getMinutes());
+  const [startingHour, setStartingHour] = useState<number>(hour);
+  const [startingMinute, setStartingMinute] = useState<number>(minute);
+
+  console.log("Hour:", startingHour);
+  console.log("Minute:", startingMinute);
 
   const { bg1, bg2, loggedUSer } = useGlobal();
 
@@ -35,13 +44,13 @@ export default function Permission2h_StartingHour() {
     console.log("Starting Hour:", startingHour);
     console.log("Starting Minute:", startingMinute);
 
-      router.push({
-        pathname: "/Permission2h_EndingHour",
-        params: { 
-          startingHour: startingHour,
-          startingMinute: startingMinute
-        },
-      });
+    router.push({
+      pathname: "/Permission2h_EndingHour",
+      params: {
+        startingHour: startingHour,
+        startingMinute: startingMinute
+      },
+    });
 
   }
 
@@ -52,23 +61,23 @@ export default function Permission2h_StartingHour() {
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.8, y: 0.8 }}
     >
-    <View className="flex-1 px-20 pt-4 justify-center">
+      <View className="flex-1 px-20 pt-4 justify-center">
         <View className="items-center justify-center mt-5 mb-0">
-            <Text className="text-3xl font-bold">Fangatahana fierana 2h</Text>
+          <Text className="text-3xl font-bold">Fangatahana fierana 2h</Text>
         </View>
 
-      <View className="m-0">
-        <View className="items-center justify-center mb-5">
-          <Text className="text-2xl mb-2">Ora hivoahana</Text>
-        </View>
-        <HourSelector onChange={(hour, minute) => onchange(hour, minute)} />
-        <View className="flex-row justify-center mt-10">
+        <View className="m-0">
+          <View className="items-center justify-center mb-5">
+            <Text className="text-2xl mb-2">Ora hivoahana</Text>
+          </View>
+          <HourSelector onChange={(hour, minute) => onchange(hour, minute)} defaultHour={hour} defaultMinute={minute} />
+          <View className="flex-row justify-center mt-10">
             {/* <Button fontSize="" onPress={ () => console.log("OK") } label="OK" className="mx-10" /> */}
-            <Button fontSize="" onPress={ () => clicked() } label="OK" className="mx-10" />
-            <ButtonSecondary fontSize="" onPress={ () => router.back() } label="Hiverina" className="mx-10" />
+            <Button fontSize="" onPress={() => clicked()} label="OK" className="mx-10" />
+            <ButtonSecondary fontSize="" onPress={() => router.back()} label="Hiverina" className="mx-10" />
+          </View>
         </View>
       </View>
-    </View>
     </LinearGradient>
   );
 }
