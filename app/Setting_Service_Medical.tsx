@@ -11,10 +11,8 @@ import api from "./utils/axios";
 async function get() {
   var rest: string[] = [];
   const path = '/medical-service'
-  console.log("path:", path);
 
   await api.get(path).then(value => { value.data.map((item: any) => rest.push(item.name)) });
-  console.log("RESULTS:", rest)
   return rest
 }
 
@@ -22,11 +20,8 @@ export default function Setting_Service_Medical() {
   const [results, setResults] = useState<string[]>([]);
   const router = useRouter();
   get().then(value => { setResults(value) });
-  console.log("RESULTS:", results)
 
   const { prefixMatricule, bg1, bg2, medicalService, setMedicalService } = useGlobal();
-
-  const options = ['SMIA', 'OSTIE'];
 
   const [serviceMedical, setServiceMedical] = useState(prefixMatricule);
 

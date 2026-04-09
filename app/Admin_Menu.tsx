@@ -19,24 +19,24 @@ export default function MenuScreen() {
         text1: 'Fampahafantarana',
         text2: 'Raha hivoaka dia kitiho ny "Hivoaka"',
       });
-      return true; 
+      return true;
     };
 
     const backHandlerSubscription = BackHandler.addEventListener(
-      'hardwareBackPress', 
+      'hardwareBackPress',
       handleBackPress
     );
-      return () => {
-        backHandlerSubscription.remove();
-      };
-    }, [isFocused]);
+    return () => {
+      backHandlerSubscription.remove();
+    };
+  }, [isFocused]);
 
-    const router = useRouter();
+  const router = useRouter();
 
   const { prefixMatricule, medicalService, setLoggedUser, bg1, bg2 } = useGlobal();
-  
+
   console.log("GLOBAL PREFIX MATRICULE:", prefixMatricule);
-  console.log("GLOBAL SERVICE MEDICAL:", medicalService);  
+  console.log("GLOBAL SERVICE MEDICAL:", medicalService);
 
   const buttons = [
     { label: "Préfix Matricule", route: "/Setting_matricule", icon: "alpha-m", firstColor: "#1432BF", secondColor: "#01016E" },
@@ -45,7 +45,7 @@ export default function MenuScreen() {
   ];
 
   const logout = () => {
-    router.push('/');
+    router.push('/Login_matricule');
     setLoggedUser(null);
   }
 
@@ -56,43 +56,43 @@ export default function MenuScreen() {
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.8, y: 0.8 }}
     >
-    <View className="flex-1 p-20">
-      <View className="items-center justify-center">
-        <Text className="text-3xl font-bold mb-8 fixed-top">Paramètre</Text>
-        {/* <Text className="text-3xl font-bold mb-8 fixed-top">Safidy fototra</Text> */}
-      </View>
+      <View className="flex-1 p-20">
+        <View className="items-center justify-center">
+          <Text className="text-3xl font-bold mb-8 fixed-top">Paramètre</Text>
+          {/* <Text className="text-3xl font-bold mb-8 fixed-top">Safidy fototra</Text> */}
+        </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <View className="flex-row flex-wrap justify-center">
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+          <View className="flex-row flex-wrap justify-center">
 
-          {buttons.map((btn, index) => (
+            {buttons.map((btn, index) => (
+              <MotiView
+                key={index}
+                from={{ opacity: 0, translateY: 50 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{
+                  type: "timing",
+                  duration: 600,
+                  delay: index * 100, // cascade
+                }}
+              >
+                <SquareButton key={index} label={btn.label} onPress={() => router.push(btn.route as RelativePathString)} icon={btn.icon} firstColor={btn.firstColor} secondColor={btn.secondColor} />
+              </MotiView>
+            ))}
             <MotiView
-              key={index}
               from={{ opacity: 0, translateY: 50 }}
               animate={{ opacity: 1, translateY: 0 }}
               transition={{
                 type: "timing",
                 duration: 600,
-                delay: index * 100, // cascade
+                delay: buttons.length * 100,
               }}
             >
-            <SquareButton key={index} label={btn.label} onPress={() => router.push(btn.route as RelativePathString)} icon={btn.icon} firstColor={btn.firstColor} secondColor={btn.secondColor} />
+              <SecondarySquareButton label="Hivoaka" onPress={() => logout()} icon={"logout"} />
             </MotiView>
-          ))}
-          <MotiView
-            from={{ opacity: 0, translateY: 50 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{
-              type: "timing",
-              duration: 600,
-              delay: buttons.length * 100,
-            }}
-          >
-            <SecondarySquareButton label="Hivoaka" onPress={() => logout()} icon={"logout"} />
-          </MotiView>
-        </View>
+          </View>
         </ScrollView>
-    </View>
+      </View>
     </LinearGradient>
   );
 }

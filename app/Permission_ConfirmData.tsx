@@ -10,8 +10,9 @@ import api from "./utils/axios";
 
 type DateTimeFormatOptions = Intl.DateTimeFormatOptions;
 
-async function post(data: { matricule: string; start_date: string; end_date: string; comment: any; leave_type: string; }) {
-  return await api.post('/leave/', data);
+async function post(data: { employee: string; start_date: string; end_date: string; reason: any; leave_type: string; }) {
+  return await api.post('/api/leave', data);
+  // return await api.post('/bot/full-leave', data);
 }
 
 const leave_type = "Permission_AMD";
@@ -58,10 +59,12 @@ export default function Permission_ConfirmData() {
     setLoading(true);
     console.log('Différence:', reste);
     const data = {
-      "matricule": "" + loggedUSer.matricule,
-      "start_date": "" + st.getMonth() + "/" + st.getDate() + "/" + st.getFullYear(),
-      "end_date": "" + en.getMonth() + "/" + (en.getDate() - 1) + "/" + en.getFullYear(),
-      "comment": permissionMotif,
+      "employee": "" + loggedUSer.matricule,
+      // "start_date": "" + st.getMonth() + "/" + st.getDate() + "/" + st.getFullYear(),
+      // "end_date": "" + en.getMonth() + "/" + (en.getDate() - 1) + "/" + en.getFullYear(),
+      "start_date": "" + st.getFullYear() + "-" + (st.getMonth() + 1) + "-" + st.getDate(),
+      "end_date": "" + en.getFullYear() + "-" + (en.getMonth() + 1) + "-" + (en.getDate() - 1),
+      "reason": permissionMotif,
       "leave_type": leave_type
     }
     await post(data).then(async (response) => {
@@ -81,7 +84,7 @@ export default function Permission_ConfirmData() {
             [{ text: "OK", style: "default" }]
           );
         }
-      } else if (response.status == 201) {
+      } else if (response.status == 201 || response.status == 200) {
         ;
         Alert.alert(
           "Fangatahana fierana",

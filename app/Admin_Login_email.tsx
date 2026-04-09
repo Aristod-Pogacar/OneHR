@@ -1,20 +1,14 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import { useGlobal } from './Providers/GlobalProvider';
 import { Button } from "./components/Button";
 import { ButtonSecondary } from './components/ButtonSecondary';
 import api from "./utils/axios";
 
-async function get(employee:string) {
-  var results
-  const path = '/employee/' + employee
-  console.log("path:", path);
-  
-  await api.get(path).then(value => {results = value.data});
-  
-  return results
+async function post(data: { login: string; }) {
+  return await api.post('/user/get-login-admin', data);
 }
 
 export default function Login_matricule() {
@@ -22,31 +16,37 @@ export default function Login_matricule() {
 
   const black = "black";
   const blue = "blue";
-    
+
   const router = useRouter();
   const [email, setEmail] = useState(""); // stocke la date de début (texte)
   const [endDate, setEndDate] = useState("");     // stocke la date de fin (texte)
   const [activeField, setActiveField] = useState<"start" | "end">("start"); // champ sélectionné
 
-  const onPress = () => {
-    // get("" + prefixMatricule + email).then(value => {
-    //   if(value) {
-    //     console.log("stringify:", JSON.stringify(value));
+  const onPress = async () => {
+    const data = {
+      "login": "" + email
+    }
+    console.log("data:", data);
+    await post(data).then(async (response) => {
+      console.log("response:", response);
+      if (response.status == 200 || response.status == 201) {
         router.push({
           pathname: '/Admin_Login_password',
-          params: { 
-            // user: JSON.stringify(value)
+          params: {
+            userLogin: email
           },
         });
-      // } else {
-      //    Alert.alert(
-      //     "Diso ny email",
-      //     "Tsy misy ny email " + email + " tompoko!",
-      //     [{ text: "OK", style: "default" }]
-      //   );
-
-      // }
-    // })
+      }
+    }).catch(async (error) => {
+      console.log("error:", error.response.status);
+      if (error.response.status === 401) {
+        Alert.alert(
+          "Diso ny email na ny matricule",
+          "Tsy misy ao amin'ny angon-drakitra ny email na ny matricule \"" + email + "\" napetrakao tompoko!",
+          [{ text: "OK", style: "default" }]
+        );
+      }
+    })
   }
 
   return (
@@ -56,29 +56,29 @@ export default function Login_matricule() {
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.8, y: 0.8 }}
     >
-    <View className="flex-1 bg-transparent px-20 pt-4 justify-start">
-      <View className="items-center justify-start mt-5 mb-0">
-        <Text className="text-3xl font-bold">Paramètre</Text>
-      </View>
+      <View className="flex-1 bg-transparent px-20 pt-4 justify-start">
+        <View className="items-center justify-start mt-5 mb-0">
+          <Text className="text-3xl font-bold">Paramètre</Text>
+        </View>
 
-      <View className="m-0 justify-center px-20">
+        <View className="m-0 justify-center px-20">
 
-        <Text className="text-lg mb-2">Email:</Text>
-        <Pressable onPress={() => setActiveField("start")} >
-          <TextInput
-            value={email}
-            placeholder="exemple@aquarabe.mg"
-            autoFocus
-            onChangeText={(text) => setEmail(text)}
-            className={`w-full h-15 border rounded-md p-3 mb-3 bg-white text-3xl border-gray-300 shadow-black shadow`}
-          />
-        </Pressable>
-        <View className="flex-row justify-center">
-          <Button fontSize="" onPress={() => onPress()} label="OK" className="mx-10" />
-          <ButtonSecondary fontSize="" onPress={ () => router.back() } label="Hiverina" className="mx-10" />
+          <Text className="text-lg mb-2">Email/Matricule:</Text>
+          <Pressable onPress={() => setActiveField("start")} >
+            <TextInput
+              value={email}
+              placeholder="exemple@aquarabe.mg / AMAA000000"
+              autoFocus
+              onChangeText={(text) => setEmail(text)}
+              className={`w-full h-15 border rounded-md p-3 mb-3 bg-white text-3xl border-gray-300 shadow-black shadow`}
+            />
+          </Pressable>
+          <View className="flex-row justify-center">
+            <Button fontSize="" onPress={() => onPress()} label="OK" className="mx-10" />
+            <ButtonSecondary fontSize="" onPress={() => router.back()} label="Hiverina" className="mx-10" />
+          </View>
         </View>
       </View>
-    </View>
     </LinearGradient>
   );
 }
