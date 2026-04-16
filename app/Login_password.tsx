@@ -84,7 +84,6 @@ export default function Login_password() {
   };
 
   const onPress = async () => {
-    console.log('PASSWORD:', password);
     setLoading(true);
     const test = await compare({
       matricule: jsonUser.matricule,
