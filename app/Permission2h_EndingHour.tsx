@@ -2,12 +2,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Print from "expo-print";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
-import { useRef, useState } from "react";
-import { Alert, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { useGlobal } from "./Providers/GlobalProvider";
-import { Button } from "./components/Button";
-import { ButtonSecondary } from "./components/ButtonSecondary";
 import HourSelector from "./components/HourSelector";
 import { LoadingModal } from "./components/LoadingModal";
 import api from "./utils/axios";
@@ -145,10 +143,11 @@ export default function Permission2h_EndingHour() {
 
   const { bg1, bg2, loggedUSer } = useGlobal();
 
-  if (loggedUSer == null) {
-    router.push('/Login_matricule');
-    return;
-  }
+  useEffect(() => {
+    if (loggedUSer == null) {
+      router.replace('/Login_matricule');
+    }
+  }, [loggedUSer]);
 
   const getTimeDiff = (startingHour: number, startingMinute: number, endingHour: number, endingMinutes: number) => {
     const startingTotalMinutes = (startingHour * 60) + startingMinute;
@@ -218,6 +217,7 @@ export default function Permission2h_EndingHour() {
         employee: loggedUSer.matricule
       };
       await post(permissionData).then(async (permission2h) => {
+        console.log("PERMISSION 2H:", permission2h);
         setPermissionID(permission2h.data.id)
         const date = new Date(permission2h.data.date)
         const qrData = {
@@ -237,14 +237,15 @@ export default function Permission2h_EndingHour() {
         );
         router.push("/Menu");
       }).catch((error) => {
+        console.log("PERMISSION 2H ERROR:", error);
         if (error.response.status == 400) {
           if (error.response.data.message == "Leave dates overlap with existing leave") {
+            setLoading(false);
             Alert.alert(
               "Tsy voaray ny fangatahana",
               "Efa misy fangatahana fierana na conge hafa amin'io daty io tompoko.",
               [{ text: "OK", style: "default" }]
             );
-            setLoading(false);
           } else if (error.response.data.message == "Local leave solde not enough" || error.response.data.message == "Permission solde not enough") {
             setLoading(false);
             Alert.alert(
@@ -267,41 +268,57 @@ export default function Permission2h_EndingHour() {
   }
 
   return (
-    <LinearGradient
-      colors={[bg1, bg2]}
-      className="flex-1"
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.8, y: 0.8 }}
-    >
-      <View className="flex-1 px-20 pt-4 justify-center">
-        <View className="items-center justify-center mt-5 mb-0">
-          <Text className="text-3xl font-bold">Fangatahana fierana 2h</Text>
+    <LinearGradient colors={[bg1, bg2]} style={{ flex: 1 }} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}>
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
+      <LoadingModal visible={loading} message="Loading..." />
+
+      {/* QR Code caché */}
+      <View style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}>
+        <QRCode value={`${apiUrl}/views-leave/permission-2h/get/${permissionID}`} size={160} getRef={(c) => (qrRef.current = c)} />
+      </View>
+
+      <View style={{ paddingTop: 48, paddingHorizontal: 28 }}>
+        <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", letterSpacing: 2, textTransform: "uppercase", fontWeight: "600", marginBottom: 4 }}>
+          Fangatahana fierana 2h
+        </Text>
+        <Text style={{ fontSize: 22, fontWeight: "800", color: "#fff" }}>
+          Ora hiverenana
+        </Text>
+        {/* Badge heure de départ */}
+        <View style={{
+          marginTop: 10, flexDirection: "row", alignItems: "center",
+          backgroundColor: "rgba(255,255,255,0.07)", borderWidth: 1,
+          borderColor: "rgba(255,255,255,0.13)", borderRadius: 10,
+          paddingHorizontal: 12, paddingVertical: 6, alignSelf: "flex-start",
+        }}>
+          <Text style={{ color: "rgba(255,255,255,0.5)", fontSize: 12 }}>
+            Hivoaka : <Text style={{ color: "#fff", fontWeight: "700" }}>
+              {String(startingHour).padStart(2, "0")}:{String(startingMinute).padStart(2, "0")}
+            </Text>
+          </Text>
         </View>
-        <LoadingModal
-          visible={loading}
-          // message="An-dala-mpiakarakarana ny fangatahanao tompoko. Mahadrasa kely..."
-          message="Loading..."
-        />
+        <View style={{ height: 1, marginTop: 16, backgroundColor: "rgba(255,255,255,0.1)" }} />
+      </View>
 
-        <View style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}>
-          <QRCode
-            value={`${apiUrl}/views-leave/permission-2h/get/${permissionID}`}
-            size={160}
-            getRef={(c) => (qrRef.current = c)}
-          />
-        </View>
-
-
-        <View className="m-0">
-          <View className="items-center justify-center mb-5">
-            <Text className="text-2xl mb-2">Ora hiverenana</Text>
-          </View>
-          <HourSelector defaultHour={default_hour} defaultMinute={default_minute} onChange={(hour, minute) => onChange(hour, minute)} />
-          <View className="flex-row justify-center mt-10">
-            <Button fontSize="" onPress={() => clicked()} label="OK" className="mx-10" />
-            {/* <Button fontSize="" onPress={ () => clicked('/Permission_EndingDate', permissionMotif, selectedDate) } label="OK" className="mx-10" /> */}
-            <ButtonSecondary fontSize="" onPress={() => router.back()} label="Hiverina" className="mx-10" />
-          </View>
+      <View style={{ flex: 1, justifyContent: "flex-start", marginTop: 50, paddingHorizontal: 28 }}>
+        <HourSelector defaultHour={default_hour} defaultMinute={default_minute} onChange={(hour, minute) => onChange(hour, minute)} />
+        <View style={{ marginTop: 50 }}>
+          <TouchableOpacity
+            onPress={clicked} activeOpacity={0.85}
+            style={{
+              backgroundColor: "#1432BF", borderRadius: 14, paddingVertical: 14, alignItems: "center",
+              borderWidth: 1, borderColor: "rgba(255,255,255,0.2)",
+              shadowColor: "#1432BF", shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 14, elevation: 8,
+            }}
+          >
+            <Text style={{ color: "#fff", fontWeight: "700", fontSize: 15 }}>Hampankatoavina ✓</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.back()} activeOpacity={0.7}
+            style={{ marginTop: 10, borderRadius: 14, paddingVertical: 12, alignItems: "center", backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: "rgba(255,255,255,0.1)" }}
+          >
+            <Text style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}>← Hiverina</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </LinearGradient>

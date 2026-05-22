@@ -11,6 +11,9 @@ type GlobalType = {
   medicalService: string;
   setMedicalService: (v: string) => void;
 
+  ipAddress: string;
+  setIpAddress: (v: string) => void;
+
   puppeteerSession: string;
   setPuppeteerSession: (v: string) => void;
 
@@ -32,6 +35,8 @@ export const GlobalProvider = ({ children }: any) => {
 
   const [medicalService, setMedicalServiceState] = useState("SMIA");
 
+  const [ipAddress, setIpAddressState] = useState("10.0.2.2");
+
   const [leavePageState, setLeavePageState] = useState(false);
 
   // 🟢 TEMPORAIRE : JSON global (pas sauvegardé)
@@ -39,8 +44,8 @@ export const GlobalProvider = ({ children }: any) => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [puppeteerSession, setPuppeteerSession] = useState<any>(null);
 
-  const bg1 = "#feffff";
-  const bg2 = "#eeffff";
+  const bg1 = "#0b0d2e";
+  const bg2 = "#0e1a5c";
 
   // Charger le préfixe stocké
   useEffect(() => {
@@ -64,6 +69,11 @@ export const GlobalProvider = ({ children }: any) => {
     await AsyncStorage.setItem("medicalService", v);
   };
 
+  const setIpAddress = async (v: string) => {
+    setIpAddressState(v);
+    await AsyncStorage.setItem("ipAddress", v);
+  };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -73,6 +83,8 @@ export const GlobalProvider = ({ children }: any) => {
         bg2,
         medicalService,
         setMedicalService,
+        ipAddress,
+        setIpAddress,
         loggedUSer,
         setLoggedUser,
         isAdmin,

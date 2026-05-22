@@ -1,9 +1,9 @@
 import { Text, TouchableOpacity, View } from "react-native";
 
 type RadioProps = {
-    onPress?: (value: string) => void; // callback optionnelle
-    value: string;
-    isSelected?: boolean;
+  onPress?: (value: string) => void; // callback optionnelle
+  value: string;
+  isSelected?: boolean;
 };
 
 // Adjust the existing RadioButton component to be controlled by its parent
@@ -26,7 +26,7 @@ export function RadioButton({ isSelected = false, onPress, value }: RadioProps) 
           <View className="w-3 h-3 bg-blue-600 rounded-full" />
         )}
       </View>
-      <Text className="text-base m-2">{value}</Text>
+      <Text className="text-base text-white m-2">{value}</Text>
     </TouchableOpacity>
   );
 }

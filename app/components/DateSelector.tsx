@@ -1,170 +1,93 @@
-import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type DateSelectorProps = {
-  onChange?: (date: Date) => void; // callback optionnelle
-  defaultValue?: Date
+  onChange?: (date: Date) => void;
+  defaultValue?: Date;
 };
+
+const ArrowButton = ({ onPress, direction }: { onPress: () => void; direction: "up" | "down" }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    activeOpacity={0.7}
+    style={{
+      width: 52, height: 42, borderRadius: 10,
+      backgroundColor: "rgba(255,255,255,0.1)",
+      borderWidth: 1, borderColor: "rgba(255,255,255,0.15)",
+      alignItems: "center", justifyContent: "center",
+    }}
+  >
+    <Text style={{ color: "rgba(255,255,255,0.85)", fontSize: 16, fontWeight: "700" }}>
+      {direction === "up" ? "▲" : "▼"}
+    </Text>
+  </TouchableOpacity>
+);
 
 export default function DateSelector({ onChange, defaultValue = new Date() }: DateSelectorProps) {
   const [day, setDay] = useState(defaultValue.getDate());
   const [month, setMonth] = useState(defaultValue.getMonth() + 1);
   const [year, setYear] = useState(defaultValue.getFullYear());
-  const gradientColor = ["#0422AE", "#01016E"] as const
 
-  const monthNames = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-  ];
-  const adjustDayForMonth = (day: number, month: number, year: number) => {
-    const maxDays = new Date(year, month, 0).getDate(); // dernier jour du mois
-    return Math.min(day, maxDays); // renvoie le jour valide
-  };
+  const monthNames = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+
+  const adjustDayForMonth = (d: number, m: number, y: number) => Math.min(d, new Date(y, m, 0).getDate());
 
   const updateDate = (d: number, m: number, y: number) => {
-    const newDate = new Date(y, m - 1, d);
-    if (onChange) onChange(newDate); // 🔥 envoie la date vers le parent
+    onChange?.(new Date(y, m - 1, d));
   };
 
-  const incrementDay = () => {
-    let maxDays = new Date(year, month, 0).getDate();
-    let newDay = day < maxDays ? day + 1 : 1;
-    setDay(newDay);
-    updateDate(newDay, month, year);
+  const incrementDay = () => { const n = day < new Date(year, month, 0).getDate() ? day + 1 : 1; setDay(n); updateDate(n, month, year); };
+  const decrementDay = () => { const n = day > 1 ? day - 1 : new Date(year, month, 0).getDate(); setDay(n); updateDate(n, month, year); };
+  const incrementMonth = () => { const n = month < 12 ? month + 1 : 1; setMonth(n); const d = adjustDayForMonth(day, n, year); setDay(d); updateDate(d, n, year); };
+  const decrementMonth = () => { const n = month > 1 ? month - 1 : 12; setMonth(n); const d = adjustDayForMonth(day, n, year); setDay(d); updateDate(d, n, year); };
+  const incrementYear = () => { const n = year + 1; setYear(n); const d = adjustDayForMonth(day, month, n); setDay(d); updateDate(d, month, n); };
+  const decrementYear = () => { const n = year - 1; setYear(n); const d = adjustDayForMonth(day, month, n); setDay(d); updateDate(d, month, n); };
+
+  const colStyle = {
+    backgroundColor: "rgba(255,255,255,0.07)",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.13)",
+    borderRadius: 16, padding: 12,
+    alignItems: "center" as const, gap: 8,
   };
 
-  const decrementDay = () => {
-    let maxDays = new Date(year, month, 0).getDate();
-    let newDay = day > 1 ? day - 1 : maxDays;
-    setDay(newDay);
-    updateDate(newDay, month, year);
+  const labelStyle = {
+    fontSize: 10, color: "rgba(255,255,255,0.35)",
+    letterSpacing: 1.5, textTransform: "uppercase" as const,
+    fontWeight: "600" as const, marginBottom: 2,
   };
 
-  const incrementMonth = () => {
-    let newMonth = month < 12 ? month + 1 : 1;
-    setMonth(newMonth);
-    const maxD = adjustDayForMonth(day, newMonth, year)
-    if (day > maxD) {
-      updateDate(maxD, newMonth, year);
-      setDay(maxD)
-    } else {
-      updateDate(day, newMonth, year);
-    }
-  };
-
-  const decrementMonth = () => {
-    let newMonth = month > 1 ? month - 1 : 12;
-    setMonth(newMonth);
-    const maxD = adjustDayForMonth(day, newMonth, year)
-    if (day > maxD) {
-      updateDate(maxD, newMonth, year);
-      setDay(maxD)
-    } else {
-      updateDate(day, newMonth, year);
-    }
-  };
-
-  const incrementYear = () => {
-    let newYear = year + 1;
-    setYear(newYear);
-    const maxD = adjustDayForMonth(day, month, newYear)
-    if (day > maxD) {
-      updateDate(maxD, month, newYear);
-      setDay(maxD)
-    } else {
-      updateDate(day, month, newYear);
-    }
-  };
-
-  const decrementYear = () => {
-    let newYear = year - 1;
-    setYear(newYear);
-    const maxD = adjustDayForMonth(day, month, newYear)
-    if (day > maxD) {
-      updateDate(maxD, month, newYear);
-      setDay(maxD)
-    } else {
-      updateDate(day, month, newYear);
-    }
+  const valueStyle = {
+    fontSize: 28, fontWeight: "800" as const, color: "#fff",
+    textAlign: "center" as const, paddingVertical: 8,
+    textShadowColor: "rgba(100,140,255,0.4)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
   };
 
   return (
-    <View className="flex-row justify-center space-x-10">
+    <View style={{ flexDirection: "row", justifyContent: "center", gap: 10 }}>
       {/* Jour */}
-      <View className="items-center mx-1">
-        <TouchableOpacity onPress={incrementDay} className="shadow-xl rounded-xl overflow-hidden">
-          <LinearGradient
-            colors={gradientColor}
-            // colors={["#ffffff", "#ffffff"]}
-            start={{ x: 0.2, y: 0.2 }}
-            end={{ x: 0.8, y: 0.8 }}
-            className="p-6 items-center justify-center"
-          >
-            <Text className="text-2xl font-bold text-white">▲</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-        <Text className="text-3xl font-extrabold my-4 p-2">{day}</Text>
-        <TouchableOpacity onPress={decrementDay} className="shadow-xl rounded-xl overflow-hidden">
-          <LinearGradient
-            colors={gradientColor}
-            start={{ x: 0.2, y: 0.2 }}
-            end={{ x: 0.8, y: 0.8 }}
-            className="p-6 items-center justify-center"
-          >
-            <Text className="text-2xl font-bold text-white">▼</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+      <View style={colStyle}>
+        <Text style={labelStyle}>Jour</Text>
+        <ArrowButton onPress={incrementDay} direction="up" />
+        <Text style={{ ...valueStyle, minWidth: 50 }}>{day}</Text>
+        <ArrowButton onPress={decrementDay} direction="down" />
       </View>
 
       {/* Mois */}
-      <View className="items-center mx-1 w-80">
-        <TouchableOpacity onPress={incrementMonth} className="bg-green-300 shadow-xl rounded-xl overflow-hidden">
-          <LinearGradient
-            colors={gradientColor}
-            start={{ x: 0.2, y: 0.2 }}
-            end={{ x: 0.8, y: 0.8 }}
-            className="p-6 items-center justify-center"
-          >
-            <Text className="text-2xl font-bold text-white">▲</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-        <Text className="text-3xl font-extrabold my-4 p-2">{monthNames[month - 1]}</Text>
-        <TouchableOpacity onPress={decrementMonth} className="bg-green-300 shadow-xl rounded-xl overflow-hidden">
-          <LinearGradient
-            colors={gradientColor}
-            start={{ x: 0.2, y: 0.2 }}
-            end={{ x: 0.8, y: 0.8 }}
-            className="p-6 items-center justify-center"
-          >
-            <Text className="text-2xl font-bold text-white">▼</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+      <View style={colStyle}>
+        <Text style={labelStyle}>Mois</Text>
+        <ArrowButton onPress={incrementMonth} direction="up" />
+        <Text style={{ ...valueStyle, fontSize: 30, minWidth: 80 }}>{monthNames[month - 1]}</Text>
+        <ArrowButton onPress={decrementMonth} direction="down" />
       </View>
 
       {/* Année */}
-      <View className="items-center mx-1">
-        <TouchableOpacity onPress={incrementYear} className="bg-purple-300 shadow-xl rounded-xl overflow-hidden">
-          <LinearGradient
-            colors={gradientColor}
-            start={{ x: 0.2, y: 0.2 }}
-            end={{ x: 0.8, y: 0.8 }}
-            className="p-6 items-center justify-center"
-          >
-            <Text className="text-2xl font-bold text-white">▲</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-        <Text className="text-3xl font-extrabold my-4 p-2">{year}</Text>
-        <TouchableOpacity onPress={decrementYear} className="bg-purple-300 shadow-xl rounded-xl overflow-hidden">
-          <LinearGradient
-            colors={gradientColor}
-            start={{ x: 0.2, y: 0.2 }}
-            end={{ x: 0.8, y: 0.8 }}
-            className="p-6 items-center justify-center"
-          >
-            <Text className="text-2xl font-bold text-white">▼</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+      <View style={colStyle}>
+        <Text style={labelStyle}>Année</Text>
+        <ArrowButton onPress={incrementYear} direction="up" />
+        <Text style={{ ...valueStyle, minWidth: 70 }}>{year}</Text>
+        <ArrowButton onPress={decrementYear} direction="down" />
       </View>
     </View>
   );

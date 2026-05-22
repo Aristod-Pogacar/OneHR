@@ -1,17 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
-import { Button } from "./components/Button";
-import { ButtonSecondary } from "./components/ButtonSecondary";
-import api from "./utils/axios";
-
-async function post(data: { matricule: string; start_date: string; end_date: string; comment: any; leave_type: string; }) {
-  await api.post('/leave/', data);
-}
-
-const leave_type = "Local_Leave_AMD";
 
 export default function CongeAnnuel_DateFin() {
   const router = useRouter();
@@ -41,41 +32,54 @@ export default function CongeAnnuel_DateFin() {
   }
 
   return (
-    <LinearGradient
-      colors={[bg1, bg2]}
-      className="flex-1"
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.8, y: 0.8 }}
-    >
-      <View className="flex-1 px-20 pt-4 justify-between">
-        <View className="items-center justify-center mt-5 mb-0">
-          <Text className="text-3xl font-bold">Hangataka fialan-tsasatra isan-taona</Text>
+    <LinearGradient colors={[bg1, bg2]} style={{ flex: 1 }} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}>
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
+
+      <View style={{ paddingTop: 48, paddingHorizontal: 28 }}>
+        <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", letterSpacing: 2, textTransform: "uppercase", fontWeight: "600", marginBottom: 4 }}>
+          Fangatahana Congé
+        </Text>
+        <Text style={{ fontSize: 22, fontWeight: "800", color: "#fff" }}>
+          Fanamarihana
+        </Text>
+        <View style={{ height: 1, marginTop: 16, backgroundColor: "rgba(255,255,255,0.1)" }} />
+      </View>
+
+      <View style={{ flex: 1, justifyContent: "flex-start", marginTop: 20, paddingHorizontal: 28 }}>
+        <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>
+          Fanamarihana
+        </Text>
+        <View style={{
+          backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1,
+          borderColor: "rgba(100,140,255,0.5)", borderRadius: 14,
+          paddingHorizontal: 16, paddingVertical: 4, marginBottom: 24,
+        }}>
+          <TextInput
+            value={remark}
+            onChangeText={(value) => setRemark(value)}
+            placeholder="Fanamarihana momba ny fangatahana"
+            placeholderTextColor="rgba(255,255,255,0.25)"
+            autoFocus
+            style={{ color: "#fff", fontSize: 16, paddingVertical: 12 }}
+          />
         </View>
 
-        {/* --- Champs de saisie --- */}
-        <View className="m-0">
-          {/* <Text className="text-2xl font-bold mb-4">Demande de congé</Text> */}
-
-          <Text className="text-lg mb-2">Fanamarihana</Text>
-          <Pressable onPress={() => setActiveField("start")}>
-            <TextInput value={remark} onChangeText={(value) => setRemark(value)} placeholder="Fanamarihana momba ny fangatahana" className={`w-full h-12 border rounded-md p-3 mb-3 border-blue-500`} autoFocus
-            />
-          </Pressable>
-          <View className="flex-row justify-center">
-            <Button fontSize="" onPress={() => onClick()} label="OK" className="mx-10" />
-            {/* <View className="p-10 m-10"></View> */}
-            <ButtonSecondary fontSize="" onPress={() => router.back()} label="Hiverina" className="mx-10" />
-            {/* <Button onPress={ () => console.log("OK") } label="OK" /> */}
-          </View>
-        </View>
-
-        {/* --- Clavier personnalisé --- */}
-        <View className="pb-5 h-3/4">
-          <ScrollView>
-            <View className="flex-row flex-wrap justify-center m-0 p-0">
-            </View>
-          </ScrollView>
-        </View>
+        <TouchableOpacity
+          onPress={onClick} activeOpacity={0.85}
+          style={{
+            backgroundColor: "#1432BF", borderRadius: 14, paddingVertical: 14, alignItems: "center",
+            borderWidth: 1, borderColor: "rgba(255,255,255,0.2)",
+            shadowColor: "#1432BF", shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 14, elevation: 8,
+          }}
+        >
+          <Text style={{ color: "#fff", fontWeight: "700", fontSize: 15 }}>Manaraka →</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.back()} activeOpacity={0.7}
+          style={{ marginTop: 10, borderRadius: 14, paddingVertical: 12, alignItems: "center", backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: "rgba(255,255,255,0.1)" }}
+        >
+          <Text style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}>← Hiverina</Text>
+        </TouchableOpacity>
       </View>
     </LinearGradient>
   );

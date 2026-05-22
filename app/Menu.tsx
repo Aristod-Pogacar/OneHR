@@ -10,19 +10,6 @@ import { useGlobal } from "./Providers/GlobalProvider";
 import { LoadingModal } from "./components/LoadingModal";
 import { SecondarySquareButton } from "./components/SecondarySquareButton";
 import { SquareButton } from "./components/SquareButton";
-import api from "./utils/axios";
-
-async function puppeteerGoToLeave(sessionId: string): Promise<any> {
-  try {
-    const path = '/bot/' + sessionId + '/leave';
-    const response = await api.post(path);
-
-    return response.data; // 👍 toujours un return
-  } catch (error) {
-    console.log("ERROR:", error);
-    return null; // 👍 ne retourne jamais undefined
-  }
-}
 
 export default function MenuScreen() {
   const [loading, setLoading] = useState(false);
@@ -50,49 +37,10 @@ export default function MenuScreen() {
       console.log("Stop audio error:", e);
     }
   }
-  // async function playVoice(soundFile: any) {
-  //   try {
-  //     // Empêche les appels multiples
-  //     if (isPlaying) return;
-
-  //     setIsPlaying(true);
-
-  //     // Nettoie l'ancien son si existant
-  //     if (currentSound) {
-  //       await currentSound.stopAsync().catch(() => { });
-  //       await currentSound.unloadAsync().catch(() => { });
-  //       currentSound = null;
-  //     }
-
-  //     const { sound } = await Audio.Sound.createAsync(
-  //       soundFile,
-  //       { shouldPlay: false }
-  //     );
-
-  //     currentSound = sound;
-
-  //     await sound.playAsync();
-
-  //     sound.setOnPlaybackStatusUpdate((status) => {
-  //       if (!status.isLoaded) return;
-
-  //       if (status.didJustFinish) {
-  //         sound.unloadAsync().catch(() => { });
-  //         currentSound = null;
-  //         setIsPlaying(false);
-  //       }
-  //     });
-
-  //   } catch (error) {
-  //     console.log("Audio error:", error);
-  //     setIsPlaying(false);
-  //   }
-  // }
   const [activeIndex, setActiveIndex] = useState(0);
   const [guided, setGuided] = useState(true);
   const soundRef = useRef<Audio.Sound | null>(null);
   const timerRef = useRef<number | null>(null);
-  // const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const playVoice = async (file: any) => {
     // stoppe l'ancien son
@@ -117,26 +65,6 @@ export default function MenuScreen() {
 
     return () => clearInterval(interval);
   }, []);
-  // useEffect(() => {
-  //   if (!guided) return;
-
-  //   playVoice(buttons[activeIndex].voice);
-  //   const timer = setTimeout(() => {
-  //     setActiveIndex((prev) =>
-  //       prev + 1 < buttons.length ? prev + 1 : 0
-  //     );
-  //   }, 4000);
-
-  //   return () => clearTimeout(timer);
-  // }, [activeIndex, guided]);
-
-  // const stopVoice = () => {
-  //   if (currentSound) {
-  //     currentSound.unloadAsync().catch(() => { });
-  //     currentSound = null;
-  //     isPlaying = false;
-  //   }
-  // }
   useFocusEffect(
     useCallback(() => {
       if (!guided) return;
@@ -217,14 +145,10 @@ export default function MenuScreen() {
   const { prefixMatricule, loggedUSer, setLoggedUser, bg1, bg2, medicalService, puppeteerSession } = useGlobal();
 
   useEffect(() => {
-    if (loggedUSer === null) {
-      router.replace('/Login_matricule');
+    if (loggedUSer == null) {
+      router.replace('/Login_fingerprint');
     }
   }, [loggedUSer]);
-
-  // console.log("loggedUSer:", loggedUSer);
-  // console.log("GLOBAL PREFIX MATRICULE:", prefixMatricule);
-  // console.log("GLOBAL SERVICE MEDICAL:", medicalService);
 
   const buttons = [
     { label: "Tsy fiasana (congé)", route: "/MenuConge", icon: "calendar-remove", firstColor: "#1432BF", secondColor: "#01016E", voice: require("../assets/audios/menu-conge.wav"), typeButton: "Leave" },
@@ -238,7 +162,7 @@ export default function MenuScreen() {
     await stopGuidance();
     await stopVoice();
     await stopGuided();
-    router.push('/');
+    // router.push('/');
     setLoggedUser(null);
   }
   const stopGuidance = async () => {
@@ -258,78 +182,173 @@ export default function MenuScreen() {
   const click = async (route: string, typeButton: string) => {
     setLoading(true);
     await stopVoice();
-    // if (typeButton === "Leave") {
-    //   await puppeteerGoToLeave(puppeteerSession).then((value: any) => {
-    //     console.log("GO TO LEAVE:", JSON.stringify(value));
-    //     if (value?.success) {
-    //       setLoading(false);
-    //       router.push(route as RelativePathString);
-    //     } else {
-    //       setLoading(false);
-    //       Alert.alert(
-    //         "Erreur",
-    //         "Une erreur est survenue. L'application va se fermer.",
-    //         [{ text: "OK", onPress: () => BackHandler.exitApp() }],
-    //         { cancelable: false }
-    //       );
-    //     }
-    //   });
-    // } else {
     setLoading(false);
     router.push(route as RelativePathString);
-    // }
   }
-
   return (
     <LinearGradient
       colors={[bg1, bg2]}
-      className="flex-1"
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.8, y: 0.8 }}
+      style={{ flex: 1 }}
+      start={{ x: 0.2, y: 0 }}
+      end={{ x: 0.8, y: 1 }}
     >
-      <View className="flex-1 p-20">
-        <View className="items-center justify-center">
-          <Text className="text-3xl font-bold mb-8 fixed-top">Bonjour {loggedUSer?.fullname} !</Text>
-          {/* <Text className="text-3xl font-bold mb-8 fixed-top">Safidy fototra</Text> */}
-        </View>
-        <LoadingModal
-          visible={loading}
-          // message="An-dala-mpiakarakarana ny fangatahanao tompoko. Mahadrasa kely..."
-          message="Loading..."
+      {/* Overlay subtil pour la profondeur */}
+      <View
+        style={{
+          position: "absolute",
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.15)",
+        }}
+      />
+
+      <LoadingModal visible={loading} message="Loading..." />
+
+      {/* En-tête */}
+      <View style={{ paddingTop: 60, paddingHorizontal: 28, paddingBottom: 0 }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: "rgba(255,255,255,0.45)",
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            fontWeight: "600",
+            marginBottom: 4,
+          }}
+        >
+          Tongasoa
+        </Text>
+        <Text
+          style={{
+            fontSize: 26,
+            fontWeight: "800",
+            color: "#fff",
+            textShadowColor: "rgba(100,140,255,0.4)",
+            textShadowOffset: { width: 0, height: 2 },
+            textShadowRadius: 12,
+          }}
+        >
+          Bonjour, {loggedUSer?.name + ' ' + loggedUSer?.firstname} !
+        </Text>
+
+        {/* Séparateur lumineux */}
+        <View
+          style={{
+            height: 1,
+            marginTop: 20,
+            backgroundColor: "rgba(255,255,255,0.1)",
+          }}
         />
+      </View>
 
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
-          <View className="flex-row flex-wrap justify-center">
-
-            {buttons.map((btn, index) => (
-              <MotiView
-                key={index}
-                from={{ opacity: 0, translateY: 50 }}
-                animate={{ opacity: 1, translateY: 0 }}
-                transition={{
-                  type: "timing",
-                  duration: 600,
-                  delay: index * 100, // cascade
-                }}
-              >
-                {/* aCl$vis$2026$ */}
-                <SquareButton key={index} label={btn.label} onPress={async () => click(btn.route, btn.typeButton)} icon={btn.icon} firstColor={btn.firstColor} secondColor={btn.secondColor} blink={index === activeIndex} />
-              </MotiView>
-            ))}
+      {/* Grille de boutons */}
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "flex-start",
+          padding: 16,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            // gap: 12,
+          }}
+        >
+          {buttons.map((btn, index) => (
             <MotiView
-              from={{ opacity: 0, translateY: 50 }}
-              animate={{ opacity: 1, translateY: 0 }}
+              key={index}
+              from={{ opacity: 0, translateY: 40, scale: 0.92 }}
+              animate={{ opacity: 1, translateY: 0, scale: 1 }}
               transition={{
-                type: "timing",
-                duration: 600,
-                delay: buttons.length * 100,
+                type: "spring",
+                damping: 18,
+                stiffness: 120,
+                delay: index * 80,
               }}
             >
-              <SecondarySquareButton label="Hiala" onPress={async () => await logout()} icon={"logout"} />
+              <SquareButton
+                label={btn.label}
+                onPress={() => click(btn.route, btn.typeButton)}
+                icon={btn.icon}
+                firstColor={btn.firstColor}
+                secondColor={btn.secondColor}
+                blink={index === activeIndex}
+              />
             </MotiView>
-          </View>
-        </ScrollView>
-      </View>
+          ))}
+
+          <MotiView
+            from={{ opacity: 0, translateY: 40, scale: 0.92 }}
+            animate={{ opacity: 1, translateY: 0, scale: 1 }}
+            transition={{
+              type: "spring",
+              damping: 18,
+              stiffness: 120,
+              delay: buttons.length * 80,
+            }}
+          >
+            <SecondarySquareButton
+              label="Hiala"
+              onPress={async () => await logout()}
+              icon="logout"
+            />
+          </MotiView>
+        </View>
+      </ScrollView>
     </LinearGradient>
   );
+  // return (
+  //   <LinearGradient
+  //     colors={[bg1, bg2]}
+  //     className="flex-1"
+  //     start={{ x: 0.5, y: 0 }}
+  //     end={{ x: 0.8, y: 0.8 }}
+  //   >
+  //     <View className="flex-1 p-20">
+  //       <View className="items-center justify-center">
+  //         <Text className="text-3xl font-bold mb-8 fixed-top">Bonjour {loggedUSer?.fullname} !</Text>
+  //         {/* <Text className="text-3xl font-bold mb-8 fixed-top">Safidy fototra</Text> */}
+  //       </View>
+  //       <LoadingModal
+  //         visible={loading}
+  //         // message="An-dala-mpiakarakarana ny fangatahanao tompoko. Mahadrasa kely..."
+  //         message="Loading..."
+  //       />
+
+  //       <ScrollView contentContainerStyle={{ padding: 16 }}>
+  //         <View className="flex-row flex-wrap justify-center">
+
+  //           {buttons.map((btn, index) => (
+  //             <MotiView
+  //               key={index}
+  //               from={{ opacity: 0, translateY: 50 }}
+  //               animate={{ opacity: 1, translateY: 0 }}
+  //               transition={{
+  //                 type: "timing",
+  //                 duration: 600,
+  //                 delay: index * 100, // cascade
+  //               }}
+  //             >
+  //               {/* aCl$vis$2026$ */}
+  //               <SquareButton key={index} label={btn.label} onPress={async () => click(btn.route, btn.typeButton)} icon={btn.icon} firstColor={btn.firstColor} secondColor={btn.secondColor} blink={index === activeIndex} />
+  //             </MotiView>
+  //           ))}
+  //           <MotiView
+  //             from={{ opacity: 0, translateY: 50 }}
+  //             animate={{ opacity: 1, translateY: 0 }}
+  //             transition={{
+  //               type: "timing",
+  //               duration: 600,
+  //               delay: buttons.length * 100,
+  //             }}
+  //           >
+  //             <SecondarySquareButton label="Hiala" onPress={async () => await logout()} icon={"logout"} />
+  //           </MotiView>
+  //         </View>
+  //       </ScrollView>
+  //     </View>
+  //   </LinearGradient>
+  // );
 }

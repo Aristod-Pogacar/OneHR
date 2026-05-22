@@ -1,40 +1,34 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
+import axios from "axios";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, BackHandler, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, BackHandler, Pressable, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { useGlobal } from './Providers/GlobalProvider';
-import { Button } from "./components/Button";
 import { KeyboardButton } from "./components/KeyboardButton";
 import { LoadingModal } from "./components/LoadingModal";
-import api from "./utils/axios";
-
-async function get(employee: string) {
-  var results
-  const path = '/employee/' + employee
-  console.log("path:", path);
-
-  await api.get(path).then(value => { results = value.data });
-
-  return results
-}
-
-async function puppeteerLogin(sessionID: string): Promise<any> {
-  try {
-    const path = '/bot' + sessionID + '/login';
-    const response = await api.post(path);
-
-    return response.data; // 👍 toujours un return
-  } catch (error) {
-    console.log("Compare error:", error);
-    return null; // 👍 ne retourne jamais undefined
-  }
-}
 
 export default function Login_matricule() {
-  const { prefixMatricule, bg1, bg2, setPuppeteerSession, puppeteerSession } = useGlobal();
+  const { prefixMatricule, bg1, bg2, ipAddress } = useGlobal();
+
+  async function get(employee: string) {
+    var results
+    const path = '/employee/' + employee
+    console.log("path:", path);
+    const api = axios.create({
+      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      timeout: 200000,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    await api.get(path).then(value => { results = value.data });
+
+    return results
+  }
 
   const isFocused = useIsFocused();
   useEffect(() => {
@@ -116,74 +110,106 @@ export default function Login_matricule() {
     })
   }
 
-  const drop = () => {
-    // setOpen(!open)
-    // if(open) { setColor(black) } else { setColor(blue) } 
-    router.push('/Admin_Login_email')
-  }
-
   return (
     <LinearGradient
       colors={[bg1, bg2]}
-      className="flex-1"
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.8, y: 0.8 }}
+      style={{ flex: 1 }}   // ← jamais className sur LinearGradient sous Android
+      start={{ x: 0.2, y: 0 }}
+      end={{ x: 0.8, y: 1 }}
     >
-      <View className="flex-1 bg-transparent px-20 pt-4 justify-between">
-        <View className="items-center justify-center mt-5 mb-0">
-          <Text className="text-3xl font-bold">Ampidiro ny laharanao(matricule)</Text>
+      <View className="flex-1 justify-between">
+        {/* <View className="flex-1 fl"> */}
+        <LoadingModal visible={loading} message="Loading..." />
+
+        {/* En-tête */}
+        <View className="items-center pt-14 gap-2">
+          <View
+            className="w-16 h-16 rounded-full items-center justify-center mb-1"
+            style={{ backgroundColor: "rgba(255,255,255,0.1)", borderWidth: 1, borderColor: "rgba(255,255,255,0.2)" }}
+          >
+            <MaterialCommunityIcons name="card-account-details-outline" size={30} color="#fff" />
+          </View>
+          <Text className="text-lg font-extrabold text-white">
+            Ampidiro ny matricule
+          </Text>
+          <Text className="text-xs text-white/45 tracking-wide">
+            Fenoy ny laharanao
+          </Text>
         </View>
 
-        {/* ICON BUTTON */}
-        <TouchableOpacity className='absolute top-10 z-40 right-5' onPress={() => drop()}>
-          <MaterialCommunityIcons name="cog-outline" size={24} color={"black"} />
-        </TouchableOpacity>
-
-        <View className="m-0 justify-center px-20">
-
-          <Text className="text-lg mb-2">Matricule:</Text>
-          <LoadingModal
-            visible={loading}
-            // message="An-dala-mpiakarakarana ny fangatahanao tompoko. Mahadrasa kely..."
-            message="Loading..."
-          />
-          <Pressable onPress={() => setActiveField("start")} >
-            <TextInput
-              value={matricule}
-              placeholder="00000"
-              editable={false}
-              className={`w-full h-15 border rounded-md p-3 mb-3 bg-white text-3xl border-blue-500 shadow shadow-black text-gray-700`}
-            />
+        {/* Champ matricule */}
+        <View className="px-6 py-20">
+          <Text className="text-xs text-white/50 uppercase tracking-widest mb-2">
+            Matricule
+          </Text>
+          <Pressable onPress={() => setActiveField("start")}>
+            <View
+              className="rounded-2xl px-4 py-4"
+              style={{
+                backgroundColor: "rgba(255,255,255,0.08)",
+                borderWidth: 1,
+                borderColor: activeField === "start" ? "rgba(100,140,255,0.6)" : "rgba(255,255,255,0.15)",
+              }}
+            >
+              <Text className="text-white text-2xl" style={{ letterSpacing: 6 }}>
+                {prefixMatricule}{matricule}
+              </Text>
+            </View>
           </Pressable>
-          <View className="flex-row justify-center">
-            <Button fontSize="" onPress={() => onPress()} label="OK" className="mx-10" />
-            {/* <ButtonSecondary fontSize="" onPress={ () => router.back() } label="Hiverina" className="mx-10" /> */}
+
+          {/* Bouton OK */}
+          <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={0.85}
+            className="mt-4 rounded-2xl py-4 items-center"
+            style={{
+              backgroundColor: "#1432BF",
+              borderWidth: 1,
+              borderColor: "rgba(255,255,255,0.2)",
+              shadowColor: "#1432BF",
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.5,
+              shadowRadius: 14,
+              elevation: 8,
+            }}
+          >
+            <Text className="text-white font-bold text-base tracking-wide">
+              Manaraka →
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/Login_fingerprint')}
+            activeOpacity={0.7}
+            style={{
+              marginTop: 10,
+              backgroundColor: "rgba(255,255,255,0.06)",
+              borderRadius: 14,
+              paddingVertical: 12,
+              alignItems: "center",
+              borderWidth: 1,
+              borderColor: "rgba(255,255,255,0.1)",
+            }}
+          >
+            <Text style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}>
+              ← Hiverina
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Clavier */}
+        <View
+          className="pt-0 pb-3 px-2"
+          style={{ backgroundColor: "rgba(0,0,0,0)", borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0)" }}
+        >
+          <View className="flex-row flex-wrap justify-center gap-2">
+            {buttons.map((label, index) => (
+              <KeyboardButton key={index} label={label} onPress={() => handleKeyPress(label)} />
+            ))}
+            <KeyboardButton backgroundColor="bg-transparent" textColor="text-transparent" label="" disabled onPress={() => { }} />
+            <KeyboardButton backgroundColor="bg-red-600" textColor="text-white" label="FAFAINA ⌫" onPress={() => handleKeyPress("FAFAINA")} />
           </View>
         </View>
 
-        <View className="border-t border-y border-r border-l border-gray-300 pb-5 bg-transparent">
-          <ScrollView>
-            <View className="flex-row flex-wrap justify-center m-0 p-0">
-              {buttons.map((label, index) => (
-                <KeyboardButton
-                  key={index}
-                  label={label}
-                  onPress={() => handleKeyPress(label)} />
-              ))}
-              <KeyboardButton
-                backgroundColor='bg-gray-200'
-                textColor='text-white'
-                label={""}
-                disabled
-                onPress={() => handleKeyPress("")} />
-              <KeyboardButton
-                backgroundColor='bg-red-500'
-                textColor='text-white'
-                label={"FAFAINA"}
-                onPress={() => handleKeyPress("FAFAINA")} />
-            </View>
-          </ScrollView>
-        </View>
       </View>
     </LinearGradient>
   );

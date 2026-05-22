@@ -5,17 +5,17 @@ import { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
 
-export default function Setting_matricule() {
+export default function Setting_ip_address() {
   const router = useRouter();
-  const { prefixMatricule, setPrefixMatricule, bg1, bg2 } = useGlobal();
-  const [matricule, setMatricule] = useState(prefixMatricule);
+  const { ipAddress, setIpAddress, bg1, bg2 } = useGlobal();
+  const [ip, setIp] = useState(ipAddress);
 
   const onClick = () => {
-    setPrefixMatricule(matricule);
+    setIpAddress(ip);
     Alert.alert(
       "Opération réussie",
-      "Le préfixe des matricules a été modifié avec succès",
-      [{ text: "OK", onPress: () => router.push('/Admin_Menu') }]
+      "L'adresse IP a été modifiée avec succès",
+      [{ text: "OK", onPress: () => router.replace('/Login_fingerprint') }]
     );
   }
 
@@ -42,7 +42,7 @@ export default function Setting_matricule() {
           Paramètre
         </Text>
         <Text style={{ fontSize: 24, fontWeight: "800", color: "#fff" }}>
-          Préfixe matricule
+          Adresse IP
         </Text>
         <View style={{ height: 1, marginTop: 16, width: "100%", backgroundColor: "rgba(255,255,255,0.1)" }} />
       </View>
@@ -50,7 +50,7 @@ export default function Setting_matricule() {
       {/* Formulaire */}
       <View style={{ paddingHorizontal: 28, paddingTop: 32 }}>
         <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>
-          Préfixe actuel
+          Adresse IP actuelle
         </Text>
 
         {/* Badge valeur actuelle */}
@@ -63,12 +63,12 @@ export default function Setting_matricule() {
         }}>
           <MaterialCommunityIcons name="tag-outline" size={18} color="rgba(255,255,255,0.4)" />
           <Text style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, marginLeft: 8 }}>
-            Valeur actuelle : <Text style={{ color: "#fff", fontWeight: "700" }}>{prefixMatricule}</Text>
+            Valeur actuelle : <Text style={{ color: "#fff", fontWeight: "700" }}>{ipAddress}</Text>
           </Text>
         </View>
 
         <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>
-          Nouveau préfixe
+          Nouvelle adresse IP
         </Text>
         <View style={{
           backgroundColor: "rgba(255,255,255,0.08)",
@@ -77,8 +77,8 @@ export default function Setting_matricule() {
           marginBottom: 24,
         }}>
           <TextInput
-            value={matricule}
-            onChangeText={(value) => setMatricule(value)}
+            value={ip}
+            onChangeText={(value) => setIp(value)}
             placeholder="ex: AMAA"
             placeholderTextColor="rgba(255,255,255,0.25)"
             autoFocus
@@ -101,7 +101,7 @@ export default function Setting_matricule() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={() => router.replace('/Login_fingerprint')}
           activeOpacity={0.7}
           style={{
             marginTop: 10, borderRadius: 14, paddingVertical: 12, alignItems: "center",

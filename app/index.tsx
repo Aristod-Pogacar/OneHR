@@ -25,5 +25,7 @@ export default function Index() {
   verifyInstallation();
   // const { login } = useAuth();
   // return <Redirect href="/Loading" />
-  return <Redirect href="/LoginScreen" />
+  // return <Redirect href="/EnrollScreen" />
+  // return <Redirect href="/LoginScreen" />
+  return <Redirect href="/Login_fingerprint" />
 }
