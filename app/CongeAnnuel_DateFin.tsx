@@ -21,6 +21,8 @@ export default function CongeAnnuel_DateFin() {
   today.setSeconds(0);
   today.setMilliseconds(0);
 
+  const maxDayTaken = 10;
+
   const router = useRouter();
   const { startingDate } = useLocalSearchParams();
   const [endingDate, setEndingDate] = useState<Date>(today);
@@ -118,17 +120,23 @@ export default function CongeAnnuel_DateFin() {
 
   const onChange = (endDate: Date) => {
     const start = new Date(startingDate.toString());
+    const end = new Date(endDate.toString());
     // endDate.setDate(endDate.getDate() + 1)
     setEndingDate(endDate);
-    console.log("Starting date:", start);
-    console.log("Ending date:", endDate);
-
-    if (start >= endDate) {
-      console.log("Invalid Date");
-      setValideValue(false)
-    } else {
+    // console.log("Starting date:", start);
+    // console.log("Ending date:", endDate);
+    const difference = calculerDifferenceEnJours(start, end);
+    console.log("Difference:", difference)
+    console.log("Max day taken:", maxDayTaken)
+    if (start < endDate && difference <= maxDayTaken) {
       console.log("Valid Date");
       setValideValue(true)
+      // } else if (difference > maxDayTaken) {
+      //   console.log("trop de jour");
+      //   setValideValue(false)
+    } else {
+      console.log("Invalid Date");
+      setValideValue(false)
     }
   }
 

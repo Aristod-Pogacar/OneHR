@@ -1,14 +1,14 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { Audio } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
 import { RelativePathString, useRouter } from "expo-router";
 import { MotiView } from "moti";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BackHandler, ScrollView, Text, View } from "react-native";
+import { BackHandler, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { useGlobal } from "./Providers/GlobalProvider";
 import { LoadingModal } from "./components/LoadingModal";
-import { SecondarySquareButton } from "./components/SecondarySquareButton";
 import { SquareButton } from "./components/SquareButton";
 
 export default function MenuScreen() {
@@ -278,25 +278,43 @@ export default function MenuScreen() {
               />
             </MotiView>
           ))}
-
-          <MotiView
-            from={{ opacity: 0, translateY: 40, scale: 0.92 }}
-            animate={{ opacity: 1, translateY: 0, scale: 1 }}
-            transition={{
-              type: "spring",
-              damping: 18,
-              stiffness: 120,
-              delay: buttons.length * 80,
-            }}
-          >
-            <SecondarySquareButton
-              label="Hiala"
-              onPress={async () => await logout()}
-              icon="logout"
-            />
-          </MotiView>
         </View>
       </ScrollView>
+
+      {/* Bouton retour — fixe en bas, séparé */}
+      <MotiView
+        from={{ opacity: 0, translateY: 20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: "spring", damping: 18, stiffness: 120, delay: buttons.length * 80 }}
+        style={{
+          paddingHorizontal: 24,
+          paddingVertical: 16,
+          borderTopWidth: 1,
+          borderTopColor: "rgba(255,255,255,0.08)",
+          backgroundColor: "rgba(0,0,0,0.2)",
+        }}
+      >
+        <TouchableOpacity
+          onPress={async () => await logout()}
+          activeOpacity={0.7}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            borderRadius: 14,
+            paddingVertical: 14,
+            backgroundColor: "rgba(255,255,255,0.06)",
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.1)",
+          }}
+        >
+          <MaterialCommunityIcons name="logout" size={22} color="rgba(255,255,255,0.55)" />
+          <Text style={{ color: "rgba(255,255,255,0.55)", fontSize: 17, fontWeight: "600" }}>
+            Hivoaka
+          </Text>
+        </TouchableOpacity>
+      </MotiView>
     </LinearGradient>
   );
   // return (

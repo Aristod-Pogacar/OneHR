@@ -5,6 +5,8 @@ type HourSelectorProps = {
   onChange?: (hour: number, minute: number) => void;
   defaultHour?: number;
   defaultMinute?: number;
+  minHour?: number;
+  maxHour?: number;
 };
 
 const today = new Date();
@@ -32,12 +34,12 @@ const ArrowButton = ({ onPress, direction }: { onPress: () => void; direction: "
   </TouchableOpacity>
 );
 
-export default function HourSelector({ onChange, defaultHour = defaultHr, defaultMinute = defaultMin }: HourSelectorProps) {
+export default function HourSelector({ onChange, defaultHour = defaultHr, defaultMinute = defaultMin, minHour = 8, maxHour = 16 }: HourSelectorProps) {
   const [hour, setHour] = useState<number>(defaultHour);
   const [minute, setMinute] = useState<number>(defaultMinute);
 
-  const increaseHour = () => { const n = (hour + 1) % 24; setHour(n); onChange?.(n, minute); };
-  const decreaseHour = () => { const n = (hour - 1 + 24) % 24; setHour(n); onChange?.(n, minute); };
+  const increaseHour = () => { if (hour < maxHour) { const n = hour + 1; setHour(n); onChange?.(n, minute); } };
+  const decreaseHour = () => { if (hour > minHour) { const n = hour - 1; setHour(n); onChange?.(n, minute); } };
   const increaseMinute = () => { const n = (minute + 5) % 60; setMinute(n); onChange?.(hour, n); };
   const decreaseMinute = () => { const n = (minute - 5 + 60) % 60; setMinute(n); onChange?.(hour, n); };
 

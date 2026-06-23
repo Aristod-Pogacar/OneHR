@@ -23,6 +23,7 @@ export default function RootLayout() {
           {/* <Stack.Screen name="Loading" /> */}
           <Stack.Screen name="Login_fingerprint" />
           <Stack.Screen name="Login_matricule" />
+          <Stack.Screen name="Historique" />
           <Stack.Screen name="Delete_fingerprint" />
           <Stack.Screen name="EnrollScreen" />
           <Stack.Screen name="LoginScreen" />
