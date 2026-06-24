@@ -104,21 +104,33 @@ export default function MenuScreen() {
       };
     }, [activeIndex, guided])
   );
+  const stoppingRef = useRef(false);
+
   const stopGuided = async () => {
-    setGuided(false);
+    if (stoppingRef.current) return;
 
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
+    stoppingRef.current = true;
 
-    if (soundRef.current) {
-      await soundRef.current.stopAsync();
-      await soundRef.current.unloadAsync();
-      soundRef.current = null;
+    try {
+      setGuided(false);
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+
+      const sound = soundRef.current;
+
+      if (sound) {
+        soundRef.current = null;
+
+        await sound.stopAsync();
+        await sound.unloadAsync();
+      }
+    } finally {
+      stoppingRef.current = false;
     }
   };
-
   const isFocused = useIsFocused();
   useEffect(() => {
     if (!isFocused) return;

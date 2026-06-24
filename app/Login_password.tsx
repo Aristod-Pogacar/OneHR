@@ -272,7 +272,6 @@ export default function Login_password() {
               Hiditra →
             </Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             onPress={() => router.back()}
             activeOpacity={0.7}

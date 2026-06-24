@@ -138,7 +138,7 @@ export default function Login_matricule() {
         </View>
 
         {/* Champ matricule */}
-        <View className="px-6 py-20">
+        <View className="px-6">
           <Text className="text-xs text-white/50 uppercase tracking-widest mb-2">
             Matricule
           </Text>
@@ -161,9 +161,12 @@ export default function Login_matricule() {
           <TouchableOpacity
             onPress={onPress}
             activeOpacity={0.85}
-            className="mt-4 rounded-2xl py-4 items-center"
             style={{
+              marginTop: 14,
               backgroundColor: "#1432BF",
+              borderRadius: 14,
+              paddingVertical: 14,
+              alignItems: "center",
               borderWidth: 1,
               borderColor: "rgba(255,255,255,0.2)",
               shadowColor: "#1432BF",
