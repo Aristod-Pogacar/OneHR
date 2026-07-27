@@ -3,11 +3,11 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --port 5555",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
+    "android": "expo run:android --port 5555",
+    "ios": "expo run:ios --port 5555",
+    "web": "expo start --web --port 5555",
     "lint": "expo lint"
   },
   "dependencies": {
