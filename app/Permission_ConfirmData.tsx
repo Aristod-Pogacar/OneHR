@@ -131,64 +131,93 @@ export default function Permission_ConfirmData() {
     }
   }
 
+
+  async function employeeWithBalance(data: { matricule: string; date: string; }) {
+    const api = axios.create({
+      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      timeout: 200000,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await api.post('/employee/employee-with-balances', data);
+  }
+
+  async function checkOverlap(data: { matricule: string; start_date: string; end_date: string; leave_type: string; }) {
+    const api = axios.create({
+      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      timeout: 200000,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await api.get('/leave/overlap-leaves/' + data.matricule + '/' + data.start_date + '/' + data.end_date);
+  }
   const onClick = async () => {
     setLoading(true);
     console.log('Différence:', reste);
-    const data = {
-      "employee": "" + loggedUSer.matricule,
-      "start_date": "" + st.getFullYear() + "-" + (st.getMonth() + 1) + "-" + st.getDate(),
-      "end_date": "" + en.getFullYear() + "-" + (en.getMonth() + 1) + "-" + (en.getDate() - 1),
-      "reason": permissionMotif,
-      "leave_type": leave_type
-    }
     try {
       const dataSimulate = {
         "matricule": "" + loggedUSer.matricule,
         "date": "" + st.getFullYear() + "-" + (st.getMonth() + 1) + "-" + st.getDate(),
       }
-      const dataSimulateResponse = await simulate(dataSimulate);
-      if (dataSimulateResponse.data.status != 200) {
-        await post(data).then(async (response) => {
-          console.log("response:", response.status);
-          if (response.status == 201 || response.status == 200) {
-            Alert.alert(
-              "Fangatahana fierana",
-              "Voaray ny fangatahana fierana (antony: \"" + permissionMotif +
-              "\") mandritry ny " + reste + " andro nataonao tompoko. Efa an-dalana ny fandinihina izany.",
-              [{ text: "OK", style: "default" }]
-            );
-            setLoading(false);
-
-            router.push('/Menu');
-          }
-        });
-      }
-    } catch (error: any) {
-      if (error.response?.status == 400) {
-        if (error.response?.data.message == "Leave dates overlap with existing leave") {
-          Alert.alert(
-            "Tsy voaray ny fangatahana",
-            "Efa misy fangatahana fierana na conge hafa amin'io daty io tompoko.",
-            [{ text: "OK", style: "default" }]
-          );
-          setLoading(false);
-        } else if (error.response?.data.message == "Local leave solde not enough" || error.response?.data.message == "Permission solde not enough") {
-          setLoading(false);
-          Alert.alert(
-            "Tsy voaray ny fangatahana",
-            "Tsy ampy ny solde conge anao tompoko. Avadika Disponibilite ?",
-            [{ text: "Tsia", onPress: () => router.back(), style: "cancel" }, { text: "Eny", onPress: async () => await sendWithDisponibility(Number(error.response?.data.solde_left)), style: "default" }]
-          );
-        }
-      } else {
+      const overlapLeaves = await checkOverlap({
+        "matricule": "" + loggedUSer.matricule,
+        "start_date": "" + st.getFullYear() + "-" + (st.getMonth() + 1) + "-" + st.getDate(),
+        "end_date": "" + en.getFullYear() + "-" + (en.getMonth() + 1) + "-" + (en.getDate() - 1),
+        "leave_type": leave_type
+      });
+      console.log("overlapLeaves:", overlapLeaves.data.count);
+      if (overlapLeaves.data.count > 0) {
         Alert.alert(
           "Tsy voaray ny fangatahana",
-          "Tsy voaray ny fangatahana tompoko. Avereno azafady",
+          "Efa misy fangatahana conge na disponibilite hafa amin'io daty io tompoko.",
           [{ text: "OK", style: "default" }]
         );
         setLoading(false);
+        return;
       }
+      const dataEmployeeWithBalance = await employeeWithBalance(dataSimulate);
+      console.log("employeeWithBalance:", dataEmployeeWithBalance.data);
+      if (dataEmployeeWithBalance.data.solde_restant < reste) {
+        setLoading(false);
+        Alert.alert(
+          "Tsy voaray ny fangatahana",
+          "Tsy ampy ny solde conge anao tompoko. Avadika Disponibilite ?",
+          [{ text: "Tsia", style: "cancel" }, { text: "Eny", onPress: async () => await sendWithDisponibility(Number(dataEmployeeWithBalance.data.solde_restant)), style: "default" }]
+        );
+        return;
+      }
+      setLoading(false);
+      const data = {
+        "employee": "" + loggedUSer.matricule,
+        "start_date": "" + st.getFullYear() + "-" + String(st.getMonth() + 1).padStart(2, '0') + "-" + String(st.getDate()).padStart(2, '0'),
+        "end_date": "" + en.getFullYear() + "-" + String(en.getMonth() + 1).padStart(2, '0') + "-" + String(en.getDate() - 1).padStart(2, '0'),
+        "reason": permissionMotif,
+        "leave_type": leave_type
+      }
+      await post(data).then(async (response) => {
+        console.log("response:", response.status);
+        if (response.status == 201 || response.status == 200) {
+          Alert.alert(
+            "Fangatahana fierana",
+            "Voaray ny fangatahana fierana (fanamarihana: \"" + permissionMotif +
+            "\") mandritry ny " + reste + " andro nataonao tompoko. Efa an-dalana ny fandinihina izany.",
+            [{ text: "OK", style: "default" }]
+          );
+          setLoading(false);
+          router.push('/Menu');
+        }
+      });
+    } catch (error: any) {
+      Alert.alert(
+        "Tsy voaray ny fangatahana",
+        "Tsy voaray ny fangatahana tompoko. Avereno azafady",
+        [{ text: "OK", style: "default" }]
+      );
+      setLoading(false);
     }
+
   }
 
   return (
