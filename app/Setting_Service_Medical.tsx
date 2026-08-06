@@ -16,7 +16,7 @@ export default function Setting_Service_Medical() {
   async function get() {
     var rest: string[] = [];
     const api = axios.create({
-      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
       timeout: 200000,
       headers: {
         "Content-Type": "application/json",

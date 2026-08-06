@@ -20,7 +20,7 @@ export default function Login_password() {
   async function compare(data: any): Promise<any> {
     try {
       const api = axios.create({
-        baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+        baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
         timeout: 200000,
         headers: {
           "Content-Type": "application/json",

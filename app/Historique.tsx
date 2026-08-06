@@ -21,7 +21,7 @@ interface Leave {
 
 async function fetchHistory(matricule: string, ipAddress: string): Promise<Leave[]> {
     try {
-        const url = `http://${ipAddress}:${process.env.EXPO_PUBLIC_PORT}/api/leave/history/${matricule}`;
+        const url = process.env.EXPO_PUBLIC_B_LEAVE_URL + `/api/leave/history/${matricule}`;
         const response = await axios.get(url, { timeout: 10000 });
         return response.data;
     } catch {

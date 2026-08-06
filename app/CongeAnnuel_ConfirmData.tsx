@@ -31,9 +31,17 @@ export default function CongeAnnuel_ConfirmData() {
   const { ipAddress, loggedUSer, bg1, bg2 } = useGlobal();
   const [loading, setLoading] = useState(false);
 
+  // async function post(data: { employee: string; start_date: string; end_date: string; reason: any; leave_type: string; }) {
+  //   const api = axios.create({
+  //     baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+  //     timeout: 200000,
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   });
   async function post(data: { employee: string; start_date: string; end_date: string; reason: any; leave_type: string; }) {
     const api = axios.create({
-      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
       timeout: 200000,
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +52,7 @@ export default function CongeAnnuel_ConfirmData() {
 
   async function checkOverlap(data: { matricule: string; start_date: string; end_date: string; leave_type: string; }) {
     const api = axios.create({
-      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
       timeout: 200000,
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +63,7 @@ export default function CongeAnnuel_ConfirmData() {
 
   async function employeeWithBalance(data: { matricule: string; date: string; }) {
     const api = axios.create({
-      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
       timeout: 200000,
       headers: {
         "Content-Type": "application/json",
@@ -66,7 +74,7 @@ export default function CongeAnnuel_ConfirmData() {
 
   async function simulate(data: { matricule: string; date: string; }) {
     const api = axios.create({
-      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
       timeout: 200000,
       headers: {
         "Content-Type": "application/json",

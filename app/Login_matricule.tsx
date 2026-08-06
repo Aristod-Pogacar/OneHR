@@ -16,14 +16,24 @@ export default function Login_matricule() {
   async function get(employee: string) {
     var results
     const path = '/employee/' + employee
+    // const api_url = process.env.EXPO_PUBLIC_B_LEAVE_URL + "/"
     console.log("path:", path);
+    // console.log("api_url:", api_url);
+    // const api = axios.create({
+    //   baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+    //   timeout: 200000,
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // });
     const api = axios.create({
-      baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+      baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
       timeout: 200000,
       headers: {
         "Content-Type": "application/json",
       },
     });
+    console.log("apiUrl:", api.defaults.baseURL);
 
     await api.get(path).then(value => { results = value.data });
 
