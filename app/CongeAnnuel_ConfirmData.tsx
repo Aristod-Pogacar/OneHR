@@ -105,6 +105,7 @@ export default function CongeAnnuel_ConfirmData() {
   en.toLocaleDateString()
 
   const sendWithDisponibility = async (soldeLeft: number) => {
+    console.log("SOLDE LEFT :", soldeLeft);
     setLoading(true);
     const startingLeaveDate = new Date(startingDate.toString());
     const endingLeaveDate = new Date(startingLeaveDate.getFullYear(), startingLeaveDate.getMonth(), startingLeaveDate.getDate() + Math.floor(soldeLeft) - 1);
@@ -130,12 +131,7 @@ export default function CongeAnnuel_ConfirmData() {
     console.log("dataLeave:", dataLeave);
     console.log("dataIndisponibilite:", dataIndisponibilite);
     try {
-      const dataSimulate = {
-        "matricule": "" + loggedUSer.matricule,
-        "date": "" + st.getFullYear() + "-" + (st.getMonth() + 1) + "-" + st.getDate(),
-      }
-      const dataSimulateResponse = await simulate(dataSimulate);
-      if (dataSimulateResponse.data.status != 200) {
+      if (soldeLeft > 0) {
         await post(dataLeave).then(async (response) => {
           console.log("response:", response.status);
           if (response.status == 201 || response.status == 200) {
@@ -155,8 +151,24 @@ export default function CongeAnnuel_ConfirmData() {
             })
           }
         })
+      } else {
+        await post(dataIndisponibilite).then(async (response) => {
+          console.log("response:", response.status);
+          if (response.status == 201 || response.status == 200) {
+            Alert.alert(
+              "Fangatahana conge",
+              "Voaray ny fangatahana conge sy disponibilite (fanamarihana: \"" + remark +
+              "\") mandritry ny " + reste + " andro nataonao tompoko. Efa an-dalana ny fandinihina izany.",
+              [{ text: "OK", style: "default" }]
+            );
+            setLoading(false);
+
+            router.push('/Menu');
+          }
+        })
       }
     } catch (error: any) {
+      console.log("error:", error);
       Alert.alert(
         "Tsy voaray ny fangatahana",
         "Tsy voaray ny fangatahana tompoko. Avereno azafady",

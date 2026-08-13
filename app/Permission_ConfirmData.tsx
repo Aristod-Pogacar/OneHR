@@ -179,16 +179,6 @@ export default function Permission_ConfirmData() {
       }
       const dataEmployeeWithBalance = await employeeWithBalance(dataSimulate);
       console.log("employeeWithBalance:", dataEmployeeWithBalance.data);
-      if (dataEmployeeWithBalance.data.solde_restant < reste) {
-        setLoading(false);
-        Alert.alert(
-          "Tsy voaray ny fangatahana",
-          "Tsy ampy ny solde conge anao tompoko. Avadika Disponibilite ?",
-          [{ text: "Tsia", style: "cancel" }, { text: "Eny", onPress: async () => await sendWithDisponibility(Number(dataEmployeeWithBalance.data.solde_restant)), style: "default" }]
-        );
-        return;
-      }
-      setLoading(false);
       const data = {
         "employee": "" + loggedUSer.matricule,
         "start_date": "" + st.getFullYear() + "-" + String(st.getMonth() + 1).padStart(2, '0') + "-" + String(st.getDate()).padStart(2, '0'),

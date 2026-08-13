@@ -9,7 +9,7 @@ const char* PASSWORD = "1234";
 
 // --- Config WebSocket (ton serveur NestJS) ---
 const char* WS_HOST = "192.168.137.1"; // IP de ton serveur
-const int   WS_PORT = 3000;
+const int   WS_PORT = 5000;
 const char* WS_PATH = "/";             // ou "/socket.io/..." si tu utilises Socket.IO
 
 // --- AS608 sur Serial2 ---

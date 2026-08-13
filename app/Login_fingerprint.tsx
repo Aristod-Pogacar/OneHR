@@ -14,7 +14,7 @@ export default function Login_fingerprint() {
     const [sent, setSent] = useState<boolean>(false);
     const { setLoggedUser, bg1, bg2 } = useGlobal();
 
-    const { send } = useSocket({
+    const { send, connected } = useSocket({
         login_success: (data) => {
             setEmployee(data.employee);
             setStatus('success');
@@ -33,9 +33,21 @@ export default function Login_fingerprint() {
     });
 
     useEffect(() => {
-        const timer = setTimeout(() => send('start_listening'), 500);
-        return () => { clearTimeout(timer); send('stop_listening'); };
-    }, []);
+        if (!connected) {
+            console.log('[LOGIN] WebSocket not connected yet');
+            return;
+        }
+
+        console.log('[LOGIN] WebSocket connected → start listening');
+
+        send('start_listening');
+
+        return () => {
+            console.log('[LOGIN] Leaving fingerprint screen → stop listening');
+
+            send('stop_listening');
+        };
+    }, [connected, send]);
 
     // Couleurs dynamiques selon le statut
     const statusConfig = {
@@ -63,14 +75,14 @@ export default function Login_fingerprint() {
     };
 
     const drop_settings = () => {
-        send('stop_listening')
-        router.push('/Admin_Login_email')
-    }
+        send('stop_listening');
+        router.push('/Admin_Login_email');
+    };
 
     const drop_ip = () => {
-        send('stop_listening')
-        router.push('/Setting_ip_address')
-    }
+        send('stop_listening');
+        router.push('/Setting_ip_address');
+    };
 
     const cfg = statusConfig[status];
 
