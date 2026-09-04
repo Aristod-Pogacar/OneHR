@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
+import { ErrorModal } from "./components/ErrorModal";
 import { LoadingModal } from "./components/LoadingModal";
 
 type DateTimeFormatOptions = Intl.DateTimeFormatOptions;
@@ -28,7 +29,7 @@ export default function CongeAnnuel_ConfirmData() {
 
   const router = useRouter();
   const { remark, startingDate, endingDate } = useLocalSearchParams();
-  const { ipAddress, loggedUSer, bg1, bg2 } = useGlobal();
+  const { ipAddress, loggedUSer, bg1, bg2, connected } = useGlobal();
   const [loading, setLoading] = useState(false);
 
   // async function post(data: { employee: string; start_date: string; end_date: string; reason: any; leave_type: string; }) {
@@ -192,8 +193,8 @@ export default function CongeAnnuel_ConfirmData() {
         "end_date": "" + en.getFullYear() + "-" + (en.getMonth() + 1) + "-" + (en.getDate() - 1),
         "leave_type": leave_type
       });
-      console.log("overlapLeaves:", overlapLeaves.data.count);
-      if (overlapLeaves.data.count > 0) {
+      console.log("overlapLeaves:", overlapLeaves.data.length);
+      if (overlapLeaves.data.length > 0) {
         Alert.alert(
           "Tsy voaray ny fangatahana",
           "Efa misy fangatahana conge na disponibilite hafa amin'io daty io tompoko.",
@@ -248,6 +249,7 @@ export default function CongeAnnuel_ConfirmData() {
   return (
     <LinearGradient colors={[bg1, bg2]} style={{ flex: 1 }} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}>
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
+      <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
       <LoadingModal visible={loading} message="Loading..." />
 
       <View style={{ paddingTop: 48, paddingHorizontal: 28 }}>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
 import DateSelector from "./components/DateSelector";
+import { ErrorModal } from "./components/ErrorModal";
 import { LoadingModal } from "./components/LoadingModal";
 
 type DateTimeFormatOptions = Intl.DateTimeFormatOptions;
@@ -30,7 +31,7 @@ export default function ServiceMedical_DateDemande() {
 
   const { reason } = useLocalSearchParams();
 
-  const { bg1, bg2, loggedUSer, medicalService, ipAddress } = useGlobal();
+  const { bg1, bg2, loggedUSer, medicalService, ipAddress, connected } = useGlobal();
 
   async function post(data: { employee: any; date: string; reason: string | string[]; }) {
     const api = axios.create({
@@ -107,6 +108,7 @@ export default function ServiceMedical_DateDemande() {
   return (
     <LinearGradient colors={[bg1, bg2]} style={{ flex: 1 }} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}>
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
+      <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
       <LoadingModal visible={loading} message="Loading..." />
 
       <View style={{ paddingTop: 48, paddingHorizontal: 28 }}>

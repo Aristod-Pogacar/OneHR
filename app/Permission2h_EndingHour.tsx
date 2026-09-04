@@ -1,8 +1,9 @@
+import { Audio } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Print from "expo-print";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { useGlobal } from "./Providers/GlobalProvider";
@@ -128,7 +129,8 @@ export default function Permission2h_EndingHour() {
   // today.setSeconds(0);
   // today.setMilliseconds(0);
   const router = useRouter();
-  const { startingHour, startingMinute } = useLocalSearchParams();
+  const { reason, startingHour, startingMinute } = useLocalSearchParams();
+  console.log("REASON:", reason);
   console.log("STARTING MINUTE:", startingMinute)
   const default_hour = Number.parseInt(startingHour.toString()) + 2;
   const default_minute = Number.parseInt(startingMinute.toString());
@@ -140,6 +142,48 @@ export default function Permission2h_EndingHour() {
   const apiUrl = process.env.EXPO_PUBLIC_API_URL + ":" + process.env.EXPO_PUBLIC_PORT + "/";
   const [loading, setLoading] = useState(false);
   const qrRef = useRef<any>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  const voice = require("../assets/audios/Heure arrive.wav");
+
+  const startLoopSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        voice,
+        {
+          shouldPlay: true,
+          isLooping: true,
+          volume: 1.0,
+        }
+      );
+
+      soundRef.current = sound;
+    } catch (err) {
+      console.log("Erreur audio:", err);
+    }
+  };
+
+  const stopLoopSound = async () => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    } catch (e) {
+      console.log("Son déjà arrêté");
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      startLoopSound();
+
+      return () => {
+        stopLoopSound();
+      };
+    }, [])
+  );
 
   const { bg1, bg2, loggedUSer } = useGlobal();
 
@@ -182,10 +226,6 @@ export default function Permission2h_EndingHour() {
   }
 
   const clicked = async () => {
-    console.log("Starting Hour:", startingHour);
-    console.log("Starting Minute:", startingMinute);
-    console.log("Ending Hour:", endingHour);
-    console.log("Ending Minute:", endingMinute);
 
     const diff = getTimeDiff(Number.parseInt(startingHour.toString()), Number.parseInt(startingMinute.toString()), endingHour, endingMinute)
     console.log("Diff=", diff);
@@ -203,65 +243,19 @@ export default function Permission2h_EndingHour() {
       setLoading(false);
       Alert.alert(
         "Heure invalide",
-        "L'heure d'arrivé doit être au plus tard 2h après l'heure de départ.",
+        "Adiny 2 ihany no fierana tompoko.",
         [{ text: "OK", style: "default" }]
       );
     } else {
-      const permissionData = {
-        reason: "Permission 2h",
-        date: "" + today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0"),
-        startTime: String(startingHour).padStart(2, "0") + ":" + String(startingMinute).padStart(2, "0"),
-        endTime: String(endingHour).padStart(2, "0") + ":" + String(endingMinute).padStart(2, "0"),
-        expectedStartTime: String(startingHour).padStart(2, "0") + ":" + String(startingMinute).padStart(2, "0"),
-        expectedEndTime: String(endingHour).padStart(2, "0") + ":" + String(endingMinute).padStart(2, "0"),
-        employee: loggedUSer.matricule
-      };
-      await post(permissionData).then(async (permission2h) => {
-        console.log("PERMISSION 2H:", permission2h);
-        setPermissionID(permission2h.data.id)
-        const date = new Date(permission2h.data.date)
-        const qrData = {
-          nom: permission2h.data.employee.fullname,
-          matricule: permission2h.data.employee.matricule,
-          date: String(date.getDate()).padStart(2, '0') + "/" + String(date.getMonth()).padStart(2, '0') + "/" + date.getFullYear(),
-          heureDebut: permission2h.data.startTime,
-          heureFin: permission2h.data.endTime,
-          id: permission2h.data.id
-        }
-        await exportTicket6cmPDF(qrData, qrRef)
-        setLoading(false);
-        Alert.alert(
-          "Permission 2h",
-          "Demande de permission 2h accordée !",
-          [{ text: "OK", style: "default" }]
-        );
-        router.push("/Menu");
-      }).catch((error) => {
-        console.log("PERMISSION 2H ERROR:", error);
-        if (error.response.status == 400) {
-          if (error.response.data.message == "Leave dates overlap with existing leave") {
-            setLoading(false);
-            Alert.alert(
-              "Tsy voaray ny fangatahana",
-              "Efa misy fangatahana fierana na conge hafa amin'io daty io tompoko.",
-              [{ text: "OK", style: "default" }]
-            );
-          } else if (error.response.data.message == "Local leave solde not enough" || error.response.data.message == "Permission solde not enough") {
-            setLoading(false);
-            Alert.alert(
-              "Tsy voaray ny fangatahana",
-              "Tsy ampy ny solde conge anao tompoko.",
-              [{ text: "OK", style: "default" }]
-            );
-          }
-        }
-        console.log("ERROR:", error);
-        setLoading(false);
-        Alert.alert(
-          "Tsy voaray ny fangatahana",
-          "Tsy voaray ny fangatahana tompoko. Avereno azafady",
-          [{ text: "OK", style: "default" }]
-        );
+      router.push({
+        pathname: "/Permission2h_ConfirmData",
+        params: {
+          startingHour: startingHour,
+          startingMinute: startingMinute,
+          endingHour: endingHour,
+          endingMinute: endingMinute,
+          reason: reason
+        },
       });
     }
 

@@ -5,64 +5,86 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
+import { ErrorModal } from "./components/ErrorModal";
+import { LoadingModal } from "./components/LoadingModal";
 
 export default function Login_password() {
-  const { ipAddress, bg1, bg2 } = useGlobal();
+  const { ipAddress, bg1, bg2, connected } = useGlobal();
 
   const { userLogin } = useLocalSearchParams();
   console.log("userLogin:", userLogin);
 
   async function compare(data: any): Promise<any> {
-    try {
-      const api = axios.create({
-        baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
-        timeout: 200000,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      // const api = axios.create({
-      //   baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
-      //   timeout: 200000,
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
-      const path = '/user/connect-admin-user';
-      const response = await api.post(path, {
-        email: data.userLogin,
-        password: data.password
-      });
+    const api = axios.create({
+      baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
+      timeout: 200000,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    // const api = axios.create({
+    //   baseURL: 'http://' + ipAddress + ':' + process.env.EXPO_PUBLIC_PORT + "/", // change ici
+    //   timeout: 200000,
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // });
+    const path = '/user/connect-admin-user';
+    const response = await api.post(path, {
+      email: data.userLogin,
+      password: data.password
+    });
 
-      return response.data; // 👍 toujours un return
-    } catch (error) {
-      console.log("Compare error:", error);
-      return null; // 👍 ne retourne jamais undefined
-    }
+    return response.data; // 👍 toujours un return
   }
   const router = useRouter();
   const [password, setPassword] = useState(""); // stocke la date de début (texte)
+  const [loading, setLoading] = useState(false);
 
-  const onPress = () => {
-    compare({ userLogin, password }).then(value => {
+  const onPress = async () => {
+    setLoading(true);
+
+    try {
+      const value = await compare({ userLogin, password });
+
       if (value) {
         console.log("stringify:", JSON.stringify(value));
+
         router.push({
-          pathname: '/Admin_Menu',
+          pathname: "/Admin_Menu",
           params: {
-            user: JSON.stringify(value)
+            user: JSON.stringify(value),
           },
         });
+      }
+    } catch (error) {
+      console.log("error:", error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          Alert.alert(
+            "Diso ny teny miafina",
+            "Tsy marina ny teny miafina tompoko !",
+            [{ text: "OK", style: "default" }]
+          );
+        } else {
+          Alert.alert(
+            "Erreur",
+            "Misy olana amin'ny connexion ! Avereno azafady.",
+            [{ text: "OK", style: "default" }]
+          );
+        }
       } else {
         Alert.alert(
-          "Diso ny reny miafina",
-          "Tsy misy ny reny miafina tompoko!",
+          "Erreur",
+          "Misy olana ny fangatahanao. Avereno azafady. ERROR: " + error,
           [{ text: "OK", style: "default" }]
         );
-
       }
-    })
-  }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <LinearGradient
@@ -71,6 +93,9 @@ export default function Login_password() {
       start={{ x: 0.2, y: 0 }}
       end={{ x: 0.8, y: 1 }}
     >
+      <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
+      <LoadingModal visible={loading} message="Loading..." />
+
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
 
       {/* En-tête */}

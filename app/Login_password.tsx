@@ -1,10 +1,12 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
+import { Audio } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useRef, useState } from "react";
 import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
+import { ErrorModal } from "./components/ErrorModal";
 import { KeyboardButton } from "./components/KeyboardButton";
 import { LoadingModal } from "./components/LoadingModal";
 
@@ -15,28 +17,65 @@ export default function Login_password() {
   const [activeField, setActiveField] = useState<"start" | "end">("start"); // champ sélectionné
   const { user } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
+  const soundRef = useRef<Audio.Sound | null>(null);
 
-  const { setLoggedUser, bg1, bg2, ipAddress } = useGlobal();
-  async function compare(data: any): Promise<any> {
+  const voice = require("../assets/audios/Password.wav");
+
+  const startLoopSound = async () => {
     try {
-      const api = axios.create({
-        baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
-        timeout: 200000,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const path = '/employee/compare';
-      const response = await api.post(path, {
-        matricule: data.matricule,
-        password: data.password
-      });
+      const { sound } = await Audio.Sound.createAsync(
+        voice,
+        {
+          shouldPlay: true,
+          isLooping: true,
+          volume: 1.0,
+        }
+      );
 
-      return response.data; // 👍 toujours un return
-    } catch (error) {
-      console.log("Compare error:", error);
-      return null; // 👍 ne retourne jamais undefined
+      soundRef.current = sound;
+    } catch (err) {
+      console.log("Erreur audio:", err);
     }
+  };
+
+  const stopLoopSound = async () => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    } catch (e) {
+      console.log("Son déjà arrêté");
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      startLoopSound();
+
+      return () => {
+        stopLoopSound();
+      };
+    }, [])
+  );
+
+  const { setLoggedUser, bg1, bg2, ipAddress, connected } = useGlobal();
+  async function compare(data: any): Promise<any> {
+    const api = axios.create({
+      baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
+      timeout: 200000,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const path = '/employee/compare';
+    const response = await api.post(path, {
+      matricule: data.matricule,
+      password: data.password
+    });
+
+    return response.data; // 👍 toujours un return
   }
 
   const jsonUser = JSON.parse(user.toString())
@@ -59,64 +98,75 @@ export default function Login_password() {
   };
 
   const onPress = async () => {
-    setLoading(true);
-    const test = await compare({
-      matricule: jsonUser.matricule,
-      password: password
-    })
-    console.log("test:", test);
+    try {
+      setLoading(true);
+      const test = await compare({
+        matricule: jsonUser.matricule,
+        password: password
+      })
+      console.log("test:", test);
 
-    if (!test) {
+      if (!test) {
+        setLoading(false);
+        Alert.alert(
+          "Erreur !",
+          "Mangataka anao mba hamerina tompoko",
+          [{ text: "OK", style: "default" }]
+        );
+        return;
+      }
+      // if (password === jsonUser.appPassword) {
+      if (test.isEmployee) {
+        // puppeteerLogin(puppeteerSession, {
+        //   matricule: jsonUser.matricule,
+        //   password: jsonUser.password
+        // }).then(value => {
+        // console.log("stringify:", JSON.stringify(value));
+        // if (value.success == true) {
+        console.log('PASSWORD:', jsonUser.password);
+
+        setLoggedUser(jsonUser)
+
+        router.push({
+          pathname: '/Menu',
+          params: {
+            user: JSON.stringify(jsonUser)
+          },
+        });
+        setLoading(false);
+        // } else {
+        //   setLoading(false);
+        //   Alert.alert(
+        //     "Erreur",
+        //     "Iangaviana ianao mba ho any amin'ny biraon'ny RH",
+        //     [{ text: "OK", style: "default" }]
+        //   );
+        // }
+        // })
+      } else {
+        Alert.alert(
+          "Diso ny teny miafina",
+          "Diso ny teny miafina! Mamerena mampiditra azafady",
+          [{ text: "OK", style: "default" }]
+        );
+        setLoading(false);
+      }
+      // router.push({
+      //   pathname: '/Login_password',
+      //   params: { 
+      //     user: JSON.stringify(value)
+      //   },
+      // });
+
+    } catch (error) {
+      console.log("error:", error);
       setLoading(false);
       Alert.alert(
-        "Erreur !",
-        "Mangataka anao mba hamerina tompoko",
+        "Error",
+        "Misy olana amin'ny connexion! Avereno azafady. ERROR: " + error,
         [{ text: "OK", style: "default" }]
       );
-      return;
     }
-    // if (password === jsonUser.appPassword) {
-    if (test.isEmployee) {
-      // puppeteerLogin(puppeteerSession, {
-      //   matricule: jsonUser.matricule,
-      //   password: jsonUser.password
-      // }).then(value => {
-      // console.log("stringify:", JSON.stringify(value));
-      // if (value.success == true) {
-      console.log('PASSWORD:', jsonUser.password);
-
-      setLoggedUser(jsonUser)
-
-      router.push({
-        pathname: '/Menu',
-        params: {
-          user: JSON.stringify(jsonUser)
-        },
-      });
-      setLoading(false);
-      // } else {
-      //   setLoading(false);
-      //   Alert.alert(
-      //     "Erreur",
-      //     "Iangaviana ianao mba ho any amin'ny biraon'ny RH",
-      //     [{ text: "OK", style: "default" }]
-      //   );
-      // }
-      // })
-    } else {
-      Alert.alert(
-        "Diso ny teny miafina",
-        "Diso ny teny miafina! Mamerena mampiditra azafady",
-        [{ text: "OK", style: "default" }]
-      );
-      setLoading(false);
-    }
-    // router.push({
-    //   pathname: '/Login_password',
-    //   params: { 
-    //     user: JSON.stringify(value)
-    //   },
-    // });
   }
 
   // Extraire les initiales du nom complet
@@ -135,6 +185,7 @@ export default function Login_password() {
       end={{ x: 0.8, y: 1 }}
     >
       <View style={{ flex: 1, justifyContent: "space-between" }}>
+        <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
         <LoadingModal visible={loading} message="Loading..." />
 
         {/* En-tête */}

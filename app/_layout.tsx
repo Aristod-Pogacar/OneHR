@@ -21,8 +21,8 @@ export default function RootLayout() {
       <GlobalProvider>
         <Stack screenOptions={{ headerShown: false }}>
           {/* <Stack.Screen name="Loading" /> */}
-          <Stack.Screen name="Login_fingerprint" />
           <Stack.Screen name="Login_matricule" />
+          <Stack.Screen name="Login_fingerprint" />
           <Stack.Screen name="Historique" />
           <Stack.Screen name="LeaveDetail" />
           <Stack.Screen name="Delete_fingerprint" />
@@ -39,6 +39,7 @@ export default function RootLayout() {
           <Stack.Screen name="Permission_StartingDate" />
           <Stack.Screen name="Permission_EndingDate" />
           <Stack.Screen name="Permission_ConfirmData" />
+          <Stack.Screen name="Permission2h_Reason" />
           <Stack.Screen name="Permission2h_StartingHour" />
           <Stack.Screen name="Permission2h_EndingHour" />
           <Stack.Screen name="Setting_matricule" />

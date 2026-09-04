@@ -22,7 +22,7 @@ export default function MenuConge() {
   const buttons = [
     { label: "Congé annuel", route: "/CongeAnnuel_DateDebut", icon: "plane-car", firstColor: "#cdd101ff", secondColor: "#766500", voice: require("../assets/audios/Congé annuel.wav") },
     { label: "Permission", route: "/Permission_Reason", icon: "calendar-remove", firstColor: "#27b400ff", secondColor: "#005500", voice: require("../assets/audios/Permission.wav") },
-    { label: "Historique", route: "/Historique", icon: "history", firstColor: "#e62e00ff", secondColor: "#771000", voice: require("../assets/audios/Permission.wav") },
+    { label: "Fialan-tsasatra nangatahina", route: "/Historique", icon: "history", firstColor: "#e62e00ff", secondColor: "#771000", voice: require("../assets/audios/Historique.wav") },
   ];
   const [activeIndex, setActiveIndex] = useState(0);
   const [guided, setGuided] = useState(true);

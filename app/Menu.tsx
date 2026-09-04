@@ -158,13 +158,13 @@ export default function MenuScreen() {
 
   useEffect(() => {
     if (loggedUSer == null) {
-      router.replace('/Login_fingerprint');
+      router.replace('/Login_matricule');
     }
   }, [loggedUSer]);
 
   const buttons = [
     { label: "Tsy fiasana (congé)", route: "/MenuConge", icon: "calendar-remove", firstColor: "#1432BF", secondColor: "#01016E", voice: require("../assets/audios/menu-conge.wav"), typeButton: "Leave" },
-    { label: "Permission 2h", route: "/Permission2h_StartingHour", icon: "clock-time-three", firstColor: "#cdd101ff", secondColor: "#766500", voice: require("../assets/audios/menu-permission_2h.wav"), typeButton: "" },
+    { label: "Permission 2h", route: "/Permission2h_Reason", icon: "clock-time-three", firstColor: "#cdd101ff", secondColor: "#766500", voice: require("../assets/audios/menu-permission_2h.wav"), typeButton: "" },
     { label: medicalService, route: "/MenuServiceMedical", icon: "hospital-box", firstColor: "#27b400ff", secondColor: "#005500", voice: require("../assets/audios/menu-smia.wav"), typeButton: "" },
     // { label: "Menu 2", route: "", icon: "home" },
     // { label: "TEST", route: "/test", icon: "bug-check", firstColor:"#A92300", secondColor: "#771000" },

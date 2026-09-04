@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
+import { ErrorModal } from "./components/ErrorModal";
 import { LoadingModal } from "./components/LoadingModal";
 
 type DateTimeFormatOptions = Intl.DateTimeFormatOptions;
@@ -27,7 +28,7 @@ export default function Permission_ConfirmData() {
 
   const router = useRouter();
   const { permissionMotif, startingDate, endingDate } = useLocalSearchParams();
-  const { loggedUSer, ipAddress, bg1, bg2 } = useGlobal();
+  const { loggedUSer, ipAddress, bg1, bg2, connected } = useGlobal();
   const [loading, setLoading] = useState(false);
 
   async function post(data: { employee: string; start_date: string; end_date: string; reason: any; leave_type: string; }) {
@@ -71,67 +72,6 @@ export default function Permission_ConfirmData() {
 
   en.toLocaleDateString()
 
-  const sendWithDisponibility = async (soldeLeft: number) => {
-    setLoading(true);
-    const startingLeaveDate = new Date(startingDate.toString());
-    const endingLeaveDate = new Date(startingLeaveDate.getFullYear(), startingLeaveDate.getMonth(), startingLeaveDate.getDate() + Math.floor(soldeLeft) - 1);
-
-    const dataLeave = {
-      "employee": "" + loggedUSer.matricule,
-      "start_date": "" + startingLeaveDate.getFullYear() + "-" + (startingLeaveDate.getMonth() + 1) + "-" + startingLeaveDate.getDate(),
-      "end_date": "" + endingLeaveDate.getFullYear() + "-" + (endingLeaveDate.getMonth() + 1) + "-" + (endingLeaveDate.getDate()),
-      "reason": permissionMotif,
-      "leave_type": leave_type
-    }
-
-    const startingIndisponibiliteDate = new Date(endingLeaveDate.getFullYear(), endingLeaveDate.getMonth(), endingLeaveDate.getDate() + 1);
-    const endingIndisponibiliteDate = new Date(endingDate.toString());
-
-    const dataIndisponibilite = {
-      "employee": "" + loggedUSer.matricule,
-      "start_date": "" + startingIndisponibiliteDate.getFullYear() + "-" + (startingIndisponibiliteDate.getMonth() + 1) + "-" + startingIndisponibiliteDate.getDate(),
-      "end_date": "" + endingIndisponibiliteDate.getFullYear() + "-" + (endingIndisponibiliteDate.getMonth() + 1) + "-" + (endingIndisponibiliteDate.getDate()),
-      "reason": permissionMotif,
-      "leave_type": "Indisponibilite_AMD"
-    }
-    try {
-      const dataSimulate = {
-        "matricule": "" + loggedUSer.matricule,
-        "date": "" + st.getFullYear() + "-" + (st.getMonth() + 1) + "-" + st.getDate(),
-      }
-      const dataSimulateResponse = await simulate(dataSimulate);
-      if (dataSimulateResponse.data.status != 200) {
-        await post(dataLeave).then(async (response) => {
-          console.log("response:", response.status);
-          if (response.status == 201 || response.status == 200) {
-            await post(dataIndisponibilite).then(async (response) => {
-              console.log("response:", response.status);
-              if (response.status == 201 || response.status == 200) {
-                Alert.alert(
-                  "Fangatahana fierana",
-                  "Voaray ny fangatahana fierana (antony: \"" + permissionMotif +
-                  "\") mandritry ny " + reste + " andro nataonao tompoko. Efa an-dalana ny fandinihina izany.",
-                  [{ text: "OK", style: "default" }]
-                );
-                setLoading(false);
-
-                router.push('/Menu');
-              }
-            })
-          }
-        })
-      }
-    } catch (error: any) {
-      Alert.alert(
-        "Tsy voaray ny fangatahana",
-        "Tsy voaray ny fangatahana tompoko. Avereno azafady",
-        [{ text: "OK", style: "default" }]
-      );
-      setLoading(false);
-    }
-  }
-
-
   async function employeeWithBalance(data: { matricule: string; date: string; }) {
     const api = axios.create({
       baseURL: process.env.EXPO_PUBLIC_B_LEAVE_URL + "/", // change ici
@@ -157,28 +97,22 @@ export default function Permission_ConfirmData() {
     setLoading(true);
     console.log('Différence:', reste);
     try {
-      const dataSimulate = {
-        "matricule": "" + loggedUSer.matricule,
-        "date": "" + st.getFullYear() + "-" + (st.getMonth() + 1) + "-" + st.getDate(),
-      }
       const overlapLeaves = await checkOverlap({
         "matricule": "" + loggedUSer.matricule,
         "start_date": "" + st.getFullYear() + "-" + (st.getMonth() + 1) + "-" + st.getDate(),
         "end_date": "" + en.getFullYear() + "-" + (en.getMonth() + 1) + "-" + (en.getDate() - 1),
         "leave_type": leave_type
       });
-      console.log("overlapLeaves:", overlapLeaves.data.count);
-      if (overlapLeaves.data.count > 0) {
+      console.log("overlapLeaves:", overlapLeaves.data.length);
+      if (overlapLeaves.data.length > 0) {
         Alert.alert(
           "Tsy voaray ny fangatahana",
-          "Efa misy fangatahana conge na disponibilite hafa amin'io daty io tompoko.",
+          "Efa misy fangatahana conge na permission hafa amin'io daty io tompoko.",
           [{ text: "OK", style: "default" }]
         );
         setLoading(false);
         return;
       }
-      const dataEmployeeWithBalance = await employeeWithBalance(dataSimulate);
-      console.log("employeeWithBalance:", dataEmployeeWithBalance.data);
       const data = {
         "employee": "" + loggedUSer.matricule,
         "start_date": "" + st.getFullYear() + "-" + String(st.getMonth() + 1).padStart(2, '0') + "-" + String(st.getDate()).padStart(2, '0'),
@@ -205,6 +139,7 @@ export default function Permission_ConfirmData() {
         "Tsy voaray ny fangatahana tompoko. Avereno azafady",
         [{ text: "OK", style: "default" }]
       );
+      console.log("error :", error);
       setLoading(false);
     }
 
@@ -213,6 +148,7 @@ export default function Permission_ConfirmData() {
   return (
     <LinearGradient colors={[bg1, bg2]} style={{ flex: 1 }} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}>
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
+      <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
       <LoadingModal visible={loading} message="Loading..." />
 
       <View style={{ paddingTop: 48, paddingHorizontal: 28 }}>

@@ -153,6 +153,7 @@ export default function PermissionReason() {
     };
   }, [isFocused]);
 
+
   useEffect(() => {
     if (loggedUSer == null) {
       router.replace('/Login_matricule');
@@ -160,54 +161,27 @@ export default function PermissionReason() {
   }, [loggedUSer]);
 
   const buttons = [
-    {
-      label: "Fanambadina", route: "/Permission_Reason_step2", icon: "ring", firstColor: "#ff62a9ff", secondColor: "#910050ff", maxDay: 3, voice: require("../assets/audios/Fanambadiana.wav"), child: [
-        { label: "Ny mpiasa", route: "/Permission_StartingDate", icon: "ring", firstColor: "#27b400ff", secondColor: "#005500", maxDay: 3, voice: require("../assets/audios/Ny mpiasa.wav") },
-        // { label: "Zanaka", route: "/Permission_StartingDate", icon: "ring", firstColor:"#e62e00ff", secondColor:"#771000", maxDay: 3 },
-        { label: "Mpiraitampo", route: "/Permission_StartingDate", icon: "ring", firstColor: "#1432BF", secondColor: "#01016E", maxDay: 1, voice: require("../assets/audios/Ny mpiray tampo.wav") },
-      ]
-    },
-    {
-      label: "Vodiondry", route: "/Permission_Reason_step2", icon: "heart-half-full", firstColor: "#cdd101ff", secondColor: "#766500", maxDay: 1, voice: require("../assets/audios/Vodiondry.wav"), child: [
-        { label: "Ny mpiasa", route: "/Permission_StartingDate", icon: "heart-half-full", firstColor: "#27b400ff", secondColor: "#005500", maxDay: 1, voice: require("../assets/audios/Ny mpiasa.wav") },
-        { label: "Zanaka", route: "/Permission_StartingDate", icon: "heart-half-full", firstColor: "#e62e00ff", secondColor: "#771000", maxDay: 1, voice: require("../assets/audios/Ny zanaka.wav") },
-        { label: "Mpiraitampo", route: "/Permission_StartingDate", icon: "heart-half-full", firstColor: "#1432BF", secondColor: "#01016E", maxDay: 1, voice: require("../assets/audios/Ny mpiray tampo.wav") },
-      ]
-    },
-    { label: "Fahaterahan'ny zanaka", route: "/Permission_StartingDate", icon: "baby-face", firstColor: "#9d00ffff", secondColor: "#4f1275ff", maxDay: 2, voice: require("../assets/audios/Fahaterahan'ny zanaka.wav") },
-    { label: "Famorana", route: "/Permission_StartingDate", icon: "content-cut", firstColor: "#b3b3b3ff", secondColor: "#555555ff", maxDay: 2, voice: require("../assets/audios/Famorana.wav") },
-    {
-      label: "Fahafatesana", route: "/Permission_Reason_step2", icon: "cross", firstColor: "#e62e00ff", secondColor: "#771000", maxDay: 3, voice: require("../assets/audios/Fahafatesana.wav"), child: [
-        { label: "Vady", route: "/Permission_StartingDate", icon: "cross", firstColor: "#27b400ff", secondColor: "#005500", maxDay: 3, voice: require("../assets/audios/Ny vady.wav") },
-        { label: "Zanaka", route: "/Permission_StartingDate", icon: "cross", firstColor: "#e62e00ff", secondColor: "#771000", maxDay: 3, voice: require("../assets/audios/Ny zanaka.wav") },
-        { label: "Ray aman-dreny", route: "/Permission_StartingDate", icon: "cross", firstColor: "#1432BF", secondColor: "#01016E", maxDay: 3, voice: require("../assets/audios/Ny ray aman-dreny.wav") },
-        { label: "Rafozana", route: "/Permission_StartingDate", icon: "cross", firstColor: "#cdd101ff", secondColor: "#766500", maxDay: 3, voice: require("../assets/audios/Ny rafozana.wav") },
-        { label: "Mpiraitampo", route: "/Permission_StartingDate", icon: "cross", firstColor: "#9d00ffff", secondColor: "#4f1275ff", maxDay: 3, voice: require("../assets/audios/Ny mpiray tampo.wav") },
-      ]
-    },
-    {
-      label: "Fidirana hopitaly", route: "/Permission_Reason_step2", icon: "hospital-box", firstColor: "#27b400ff", secondColor: "#005500", maxDay: 3, voice: require("../assets/audios/Fidirana hopitaly.wav"), child: [
-        { label: "Vady", route: "/Permission_StartingDate", icon: "hospital-box", firstColor: "#27b400ff", secondColor: "#005500", maxDay: 2, voice: require("../assets/audios/Ny vady.wav") },
-        { label: "Zanaka", route: "/Permission_StartingDate", icon: "hospital-box", firstColor: "#e62e00ff", secondColor: "#771000", maxDay: 2, voice: require("../assets/audios/Ny zanaka.wav") },
-        { label: "Ray aman-dreny", route: "/Permission_StartingDate", icon: "hospital-box", firstColor: "#1432BF", secondColor: "#01016E", maxDay: 2, voice: require("../assets/audios/Ny ray aman-dreny.wav") },
-        { label: "Mpiraitampo", route: "/Permission_StartingDate", icon: "hospital-box", firstColor: "#cdd101ff", secondColor: "#766500", maxDay: 1, voice: require("../assets/audios/Ny mpiray tampo.wav") },
-      ]
-    },
-    { label: "Famadihana", route: "/Permission_StartingDate", icon: "coffin", firstColor: "#ff9900ff", secondColor: "#86550bff", maxDay: 2, voice: require("../assets/audios/Famadihana.wav") },
-    { label: "Fifindra- monina", route: "/Permission_StartingDate", icon: "home-export-outline", firstColor: "#1432BF", secondColor: "#01016E", maxDay: 2, voice: require("../assets/audios/Fifindra-monina.wav") },
-    { label: "Batemy/Kominio", route: "/Permission_StartingDate", icon: "church", firstColor: "#01c2edff", secondColor: "#026d85ff", maxDay: 1, voice: require("../assets/audios/Batemy na kominio.wav") },
-    { label: "Tra-boina", route: "/Permission_StartingDate", icon: "fire", firstColor: "#8c5400ff", secondColor: "#432800ff", maxDay: 2, voice: require("../assets/audios/Tra-boina.wav") },
-    { label: "Assistance maternelle", route: "/Permission_StartingDate", icon: "human-baby-changing-table", firstColor: "#a5e100ff", secondColor: "#537100ff", maxDay: 1, voice: require("../assets/audios/Mikarakara zanaka.wav") },
-    { label: "Fanadinan'ny zanaka", route: "/Permission_StartingDate", icon: "book-education", firstColor: "#00e174ff", secondColor: "#115a37ff", maxDay: 1, voice: require("../assets/audios/Fanadinan'ny zanaka.wav") },
+    { label: "Banky GAB", route: "/Permission2h_StartingHour", icon: "account-cash", firstColor: "#27b400ff", secondColor: "#005500", voice: require("../assets/audios/Banque.wav") },
+    // { label: "Banky birao", route: "/Permission2h_StartingHour", icon: "bank", firstColor: "#ff9900ff", secondColor: "#86550bff" },
+    { label: "vavahady", route: "/Permission2h_StartingHour", icon: "gate", firstColor: "#1432BF", secondColor: "#01016E", voice: require("../assets/audios/Vavahady.wav") },
+    { label: "Ambohimena", route: "/Permission2h_StartingHour", icon: "map-marker-radius", firstColor: "#01c2edff", secondColor: "#026d85ff", voice: require("../assets/audios/Ambohimena.wav") },
+    { label: "Any an-trano", route: "/Permission2h_StartingHour", icon: "home", firstColor: "#8c5400ff", secondColor: "#432800ff", voice: require("../assets/audios/Ho any an-trano.wav") },
+    // { label: "Cotona", route: "/Permission2h_StartingHour", icon: "factory", firstColor: "#a5e100ff", secondColor: "#537100ff", voice: require("../assets/audios/Cotona.wav") },
+    { label: "Ecole", route: "/Permission2h_StartingHour", icon: "school", firstColor: "#ff9900ff", secondColor: "#86550bff", voice: require("../assets/audios/Ecole.wav") },
+    { label: "Fokontany", route: "/Permission2h_StartingHour", icon: "city", firstColor: "#cdd101ff", secondColor: "#766500", voice: require("../assets/audios/Fokontany.wav") },
+    { label: "Police", route: "/Permission2h_StartingHour", icon: "police-badge", firstColor: "#9d00ffff", secondColor: "#4f1275ff", voice: require("../assets/audios/Police.wav") },
+    { label: "SMIA Nord", route: "/Permission2h_StartingHour", icon: "medical-bag", firstColor: "#e62e00ff", secondColor: "#771000", voice: require("../assets/audios/SMIA Avaratra.wav") },
+    { label: "Handevina", route: "/Permission2h_StartingHour", icon: "coffin", firstColor: "#b3b3b3ff", secondColor: "#555555ff", voice: require("../assets/audios/Handevina.wav") },
+    { label: "Colis", route: "/Permission2h_StartingHour", icon: "package", firstColor: "#ff62a9ff", secondColor: "#910050ff", voice: require("../assets/audios/Colis.wav") },
+    { label: "Commune", route: "/Permission2h_StartingHour", icon: "city", firstColor: "#a5e100ff", secondColor: "#537100ff", voice: require("../assets/audios/Commune.wav") },
+    { label: "Hafa", route: "/Permission2h_StartingHour", icon: "map-marker-question", firstColor: "#00e174ff", secondColor: "#115a37ff", voice: require("../assets/audios/Hafa.wav") },
   ];
 
-  const clicked = (route: RelativePathString, reason: string, maxDay: number, child: any) => {
+  const clicked = (route: RelativePathString, reason: string) => {
     router.push({
       pathname: route,
       params: {
-        permissionMotif: reason,
-        maxDay: maxDay,
-        child: JSON.stringify(child)
+        reason: reason
       },
     });
   }
@@ -226,7 +200,7 @@ export default function PermissionReason() {
           Permission
         </Text>
         <Text style={{ fontSize: 24, fontWeight: "800", color: "#fff" }}>
-          Anton'ny fierana
+          Anton'ny fierana adiny 2
         </Text>
         <View style={{ height: 1, marginTop: 16, backgroundColor: "rgba(255,255,255,0.1)" }} />
       </View>
@@ -242,7 +216,7 @@ export default function PermissionReason() {
             >
               <SquareButton
                 label={btn.label}
-                onPress={() => clicked(btn.route as RelativePathString, btn.label, btn.maxDay, btn.child)}
+                onPress={() => clicked(btn.route as RelativePathString, btn.label)}
                 icon={btn.icon}
                 firstColor={btn.firstColor}
                 secondColor={btn.secondColor}

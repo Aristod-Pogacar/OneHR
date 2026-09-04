@@ -5,9 +5,11 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useGlobal } from './Providers/GlobalProvider';
+import { ErrorModal } from './components/ErrorModal';
+import { LoadingModal } from './components/LoadingModal';
 
 export default function Login_matricule() {
-  const { ipAddress, bg1, bg2 } = useGlobal();
+  const { ipAddress, bg1, bg2, connected } = useGlobal();
 
   async function post(data: { login: string; }) {
     // const api = axios.create({
@@ -34,8 +36,10 @@ export default function Login_matricule() {
   const [email, setEmail] = useState(""); // stocke la date de début (texte)
   const [endDate, setEndDate] = useState("");     // stocke la date de fin (texte)
   const [activeField, setActiveField] = useState<"start" | "end">("start"); // champ sélectionné
+  const [loading, setLoading] = useState(false);
 
   const onPress = async () => {
+    setLoading(true);
     const data = {
       "login": "" + email
     }
@@ -53,13 +57,22 @@ export default function Login_matricule() {
     }).catch(async (error) => {
       console.log("error:", error.response.status);
       if (error.response.status === 401) {
+        setLoading(false);
         Alert.alert(
           "Diso ny email na ny matricule",
           "Tsy misy ao amin'ny angon-drakitra ny email na ny matricule \"" + email + "\" napetrakao tompoko!",
           [{ text: "OK", style: "default" }]
         );
+        return;
       }
+      console.log("error:", error);
+      Alert.alert(
+        "Error",
+        "Misy olana amin'ny connexion! Avereno azafady. ERROR: " + error,
+        [{ text: "OK", style: "default" }]
+      );
     })
+
   }
 
   return (
@@ -69,6 +82,9 @@ export default function Login_matricule() {
       start={{ x: 0.2, y: 0 }}
       end={{ x: 0.8, y: 1 }}
     >
+      <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
+      <LoadingModal visible={loading} message="Loading..." />
+
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
 
       {/* En-tête */}
@@ -133,7 +149,7 @@ export default function Login_matricule() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.replace('/Login_fingerprint')}
+          onPress={() => router.replace('/Login_matricule')}
           activeOpacity={0.7}
           style={{
             marginTop: 10, borderRadius: 14, paddingVertical: 12, alignItems: "center",

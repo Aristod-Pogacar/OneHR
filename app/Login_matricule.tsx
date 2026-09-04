@@ -1,18 +1,20 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import axios from "axios";
+import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, BackHandler, Pressable, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { useGlobal } from './Providers/GlobalProvider';
+import { ErrorModal } from './components/ErrorModal';
 import { KeyboardButton } from "./components/KeyboardButton";
 import { LoadingModal } from "./components/LoadingModal";
 
 export default function Login_matricule() {
-  const { prefixMatricule, bg1, bg2, ipAddress } = useGlobal();
-
+  const { prefixMatricule, bg1, bg2, ipAddress, connected } = useGlobal();
+  // const { connected } = useSocket({});
   async function get(employee: string) {
     var results
     const path = '/employee/' + employee
@@ -65,6 +67,56 @@ export default function Login_matricule() {
   const [endDate, setEndDate] = useState("");     // stocke la date de fin (texte)
   const [activeField, setActiveField] = useState<"start" | "end">("start"); // champ sélectionné
   const [loading, setLoading] = useState(false);
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  var voice = require("../assets/audios/Matricule.wav");
+
+  const startLoopSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        voice,
+        {
+          shouldPlay: true,
+          isLooping: true,
+          volume: 1.0,
+        }
+      );
+
+      soundRef.current = sound;
+    } catch (err) {
+      console.log("Erreur audio:", err);
+    }
+  };
+
+  const stopLoopSound = async () => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    } catch (e) {
+      console.log("Son déjà arrêté");
+    }
+  };
+
+  useEffect(() => {
+    if (connected) {
+      stopLoopSound();
+      voice = require("../assets/audios/Matricule.wav");
+      console.log("[VOICE] Socket connecté → démarrage");
+      startLoopSound();
+    } else {
+      stopLoopSound();
+      voice = require("../assets/audios/Erreur connexion.wav");
+      console.log("[VOICE] Socket déconnecté → arrêt");
+      startLoopSound();
+    }
+
+    return () => {
+      stopLoopSound();
+    };
+  }, [connected]);
 
   const buttons = [
     "1", "2", "3", "4",
@@ -84,41 +136,54 @@ export default function Login_matricule() {
   };
 
   const onPress = () => {
-    setLoading(true);
-    get("" + prefixMatricule + matricule).then(user => {
-      if (user) {
-        // puppeteerLogin(puppeteerSession).then(value => {
-        // console.log("stringify:", JSON.stringify(value));
-        // setPuppeteerSession(value.sessionId);
-        // if (value.success == true) {
-        setLoading(false);
-        console.log("stringify:", JSON.stringify(user));
-        router.push({
-          pathname: '/Login_password',
-          params: {
-            user: JSON.stringify(user)
-          },
-        });
-        // } else {
-        //   setLoading(false);
-        //   Alert.alert(
-        //     "Erreur",
-        //     "Iangaviana ianao mba ho any amin'ny biraon'ny RH",
-        //     [{ text: "OK", style: "default" }]
-        //   );
-        // }
-        // })
-      } else {
-        setLoading(false);
-        Alert.alert(
-          "Diso ny matricule",
-          "Tsy misy ny matricule " + matricule + " tompoko!",
-          [{ text: "OK", style: "default" }]
-        );
+    try {
+      setLoading(true);
+      get("" + prefixMatricule + matricule).then(user => {
+        if (user) {
+          // puppeteerLogin(puppeteerSession).then(value => {
+          // console.log("stringify:", JSON.stringify(value));
+          // setPuppeteerSession(value.sessionId);
+          // if (value.success == true) {
+          setLoading(false);
+          router.push({
+            pathname: '/Login_password',
+            params: {
+              user: JSON.stringify(user)
+            },
+          });
+          // } else {
+          //   setLoading(false);
+          //   Alert.alert(
+          //     "Erreur",
+          //     "Iangaviana ianao mba ho any amin'ny biraon'ny RH",
+          //     [{ text: "OK", style: "default" }]
+          //   );
+          // }
+          // })
+        } else {
+          setLoading(false);
+          Alert.alert(
+            "Diso ny matricule",
+            "Tsy misy ny matricule " + matricule + " tompoko!",
+            [{ text: "OK", style: "default" }]
+          );
+        }
+      })
 
-      }
-    })
+    } catch (error) {
+      console.log("error:", error);
+      setLoading(false);
+      Alert.alert(
+        "Error",
+        "Misy olana amin'ny connexion! Avereno azafady. ERROR: " + error,
+        [{ text: "OK", style: "default" }]
+      );
+    }
   }
+
+  const drop_settings = () => {
+    router.push('/Admin_Login_email');
+  };
 
   return (
     <LinearGradient
@@ -129,7 +194,15 @@ export default function Login_matricule() {
     >
       <View className="flex-1 justify-between">
         {/* <View className="flex-1 fl"> */}
+        <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
         <LoadingModal visible={loading} message="Loading..." />
+        <TouchableOpacity
+          onPress={() => drop_settings()}
+          className="absolute top-11 right-5 z-40 w-9 h-9 rounded-full items-center justify-center"
+          style={{ backgroundColor: "rgba(255,255,255,0.1)", borderWidth: 1, borderColor: "rgba(255,255,255,0.2)" }}
+        >
+          <MaterialCommunityIcons name="cog-outline" size={18} color="rgba(255,255,255,0.7)" />
+        </TouchableOpacity>
 
         {/* En-tête */}
         <View className="items-center pt-14 gap-2">
@@ -190,7 +263,7 @@ export default function Login_matricule() {
               Manaraka →
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => router.push('/Login_fingerprint')}
             activeOpacity={0.7}
             style={{
@@ -206,7 +279,7 @@ export default function Login_matricule() {
             <Text style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}>
               ← Hiverina
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         {/* Clavier */}

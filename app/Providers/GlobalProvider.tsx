@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useSocket } from "../hooks/useSocket";
 
 type GlobalType = {
   prefixMatricule: string;
@@ -25,12 +26,16 @@ type GlobalType = {
 
   leavePageState: boolean;
   setLeavePageState: (v: boolean) => void;
+
+  connected: boolean;
 };
 
 const GlobalContext = createContext<GlobalType | undefined>(undefined);
 
 export const GlobalProvider = ({ children }: any) => {
   // 🔵 PERSISTANT : Préfixe matricule (stocké sur l'appareil)
+  const { connected } = useSocket({});
+
   const [prefixMatricule, setPrefixMatriculeState] = useState("AMAA");
 
   const [medicalService, setMedicalServiceState] = useState("SMIA");
@@ -92,7 +97,8 @@ export const GlobalProvider = ({ children }: any) => {
         puppeteerSession,
         setPuppeteerSession,
         leavePageState,
-        setLeavePageState
+        setLeavePageState,
+        connected
       }}
     >
       {children}

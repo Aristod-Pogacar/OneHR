@@ -5,6 +5,7 @@ import { MotiView } from "moti";
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useGlobal } from './Providers/GlobalProvider';
+import { ErrorModal } from "./components/ErrorModal";
 import { useSocket } from './hooks/useSocket';
 
 type Step = 'form' | 'pose1' | 'pose2' | 'success' | 'error';
@@ -16,7 +17,7 @@ export default function Enroll() {
     const [message, setMessage] = useState('');
     const [employee, setEmployee] = useState<any>(null);
 
-    const { send } = useSocket({
+    const { send, connected } = useSocket({
         enroll_step: (data) => {
             if (data.step === 1) setStep('pose2');
         },
@@ -31,9 +32,29 @@ export default function Enroll() {
     });
 
     const startEnroll = () => {
-        if (!matricule.trim()) return;
+        const value = matricule.trim();
+
+        if (!value) {
+            return;
+        }
+
+        if (!connected) {
+            setMessage('Connexion au serveur en cours...');
+            return;
+        }
+
+        console.log('[ENROLL] Starting enrollment:', value);
+
         setStep('pose1');
-        send('start_enroll', { matricule: matricule.trim() });
+
+        const success = send('start_enroll', {
+            matricule: value,
+        });
+
+        if (!success) {
+            setStep('error');
+            setMessage('Impossible de contacter le serveur.');
+        }
     };
 
     const reset = () => {
@@ -64,6 +85,7 @@ export default function Enroll() {
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
+                <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
 
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
 
@@ -113,16 +135,29 @@ export default function Enroll() {
                             />
                             <TouchableOpacity
                                 onPress={startEnroll}
+                                disabled={!connected}
                                 activeOpacity={0.8}
                                 style={{
-                                    backgroundColor: 'rgba(100,140,255,0.35)',
-                                    borderRadius: 14, paddingVertical: 16,
+                                    backgroundColor: connected
+                                        ? 'rgba(100,140,255,0.35)'
+                                        : 'rgba(255,255,255,0.08)',
+                                    borderRadius: 14,
+                                    paddingVertical: 16,
                                     alignItems: 'center',
-                                    borderWidth: 1, borderColor: 'rgba(100,140,255,0.5)',
+                                    borderWidth: 1,
+                                    borderColor: connected
+                                        ? 'rgba(100,140,255,0.5)'
+                                        : 'rgba(255,255,255,0.1)',
                                 }}
                             >
-                                <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
-                                    Commencer
+                                <Text style={{
+                                    color: connected
+                                        ? '#fff'
+                                        : 'rgba(255,255,255,0.4)',
+                                    fontSize: 16,
+                                    fontWeight: '700',
+                                }}>
+                                    {connected ? 'Commencer' : 'Connexion...'}
                                 </Text>
                             </TouchableOpacity>
 

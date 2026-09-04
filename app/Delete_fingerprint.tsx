@@ -5,12 +5,13 @@ import { MotiView } from "moti";
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useGlobal } from './Providers/GlobalProvider';
+import { ErrorModal } from "./components/ErrorModal";
 import { useSocket } from './hooks/useSocket';
 
 type Step = 'form' | 'loading' | 'success' | 'error';
 
 export default function DeleteFingerprint() {
-    const { bg1, bg2 } = useGlobal();
+    const { bg1, bg2, connected } = useGlobal();
     const [matricule, setMatricule] = useState('');
     const [step, setStep] = useState<Step>('form');
     const [message, setMessage] = useState('');
@@ -44,6 +45,7 @@ export default function DeleteFingerprint() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+                    <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
 
                     <Text style={{ fontSize: 24, fontWeight: '800', color: '#fff', marginBottom: 6 }}>
                         Supprimer une empreinte

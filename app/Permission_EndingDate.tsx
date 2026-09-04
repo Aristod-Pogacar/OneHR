@@ -1,6 +1,7 @@
+import { Audio } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
 import DateSelector from "./components/DateSelector";
@@ -32,6 +33,48 @@ export default function Permission_EndingDate() {
   const [endingDate, setEndingDate] = useState<Date>(defaultDate);
   const [valideValue, setValideValue] = useState<Boolean>(true);
   const [message, setMessage] = useState<string>("");
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  const voice = require("../assets/audios/Fin Tsy fiasana.wav");
+
+  const startLoopSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        voice,
+        {
+          shouldPlay: true,
+          isLooping: true,
+          volume: 1.0,
+        }
+      );
+
+      soundRef.current = sound;
+    } catch (err) {
+      console.log("Erreur audio:", err);
+    }
+  };
+
+  const stopLoopSound = async () => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    } catch (e) {
+      console.log("Son déjà arrêté");
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      startLoopSound();
+
+      return () => {
+        stopLoopSound();
+      };
+    }, [])
+  );
 
   const { bg1, bg2, loggedUSer } = useGlobal();
 

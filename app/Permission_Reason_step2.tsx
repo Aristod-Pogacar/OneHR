@@ -1,9 +1,12 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
+import { Audio } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
-import { RelativePathString, useLocalSearchParams, useRouter } from "expo-router";
+import { RelativePathString, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { MotiView } from "moti";
-import { useEffect } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BackHandler, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { useGlobal } from "./Providers/GlobalProvider";
 import { SquareButton } from "./components/SquareButton";
 
@@ -23,6 +26,144 @@ export default function PermissionReason() {
   const router = useRouter();
   const { permissionMotif, child } = useLocalSearchParams();
   const { bg1, bg2, loggedUSer } = useGlobal();
+
+  let currentSound: Audio.Sound | null = null;
+  // let isPlaying = false;
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        stopVoice(); // 🔇 dès qu'on quitte l'écran
+      };
+    }, [])
+  );
+  async function stopVoice() {
+    try {
+      if (currentSound) {
+        await currentSound.stopAsync();
+        await currentSound.unloadAsync();
+        currentSound = null;
+        setIsPlaying(false);
+      }
+    } catch (e) {
+      console.log("Stop audio error:", e);
+    }
+  }
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [guided, setGuided] = useState(true);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const timerRef = useRef<number | null>(null);
+
+  const playVoice = async (file: any) => {
+    // stoppe l'ancien son
+    if (soundRef.current) {
+      await soundRef.current.stopAsync();
+      await soundRef.current.unloadAsync();
+      soundRef.current = null;
+    }
+
+    const { sound } = await Audio.Sound.createAsync(file);
+    soundRef.current = sound;
+
+    await sound.playAsync();
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) =>
+        prev + 1 < buttons.length ? prev + 1 : 0
+      );
+    }, 4000); // 5 secondes par bouton
+
+    return () => clearInterval(interval);
+  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (!guided) return;
+
+      let isActive = true;
+
+      const startGuidedFlow = async () => {
+        if (!isActive) return;
+
+        await playVoice(buttons[activeIndex].voice);
+
+        timerRef.current = setTimeout(() => {
+          if (!isActive) return;
+
+          setActiveIndex((prev) =>
+            prev + 1 < buttons.length ? prev + 1 : 0
+          );
+        }, 4000);
+      };
+
+      startGuidedFlow();
+
+      // 🔥 CLEANUP AUTOMATIQUE quand on quitte l’écran
+      return () => {
+        isActive = false;
+
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+          timerRef.current = null;
+        }
+
+        if (soundRef.current) {
+          soundRef.current.stopAsync();
+          soundRef.current.unloadAsync();
+          soundRef.current = null;
+        }
+      };
+    }, [activeIndex, guided])
+  );
+  const stoppingRef = useRef(false);
+
+  const stopGuided = async () => {
+    if (stoppingRef.current) return;
+
+    stoppingRef.current = true;
+
+    try {
+      setGuided(false);
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+
+      const sound = soundRef.current;
+
+      if (sound) {
+        soundRef.current = null;
+
+        await sound.stopAsync();
+        await sound.unloadAsync();
+      }
+    } finally {
+      stoppingRef.current = false;
+    }
+  };
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (!isFocused) return;
+    // playVoice(buttons[activeIndex].voice);
+    const handleBackPress = () => {
+      Toast.show({
+        text1: 'Fampahafantarana',
+        text2: 'Raha hivoaka dia kitiho ny "Hivoaka"',
+      });
+      return true;
+    };
+
+    const backHandlerSubscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress
+    );
+    return () => {
+      backHandlerSubscription.remove();
+    };
+  }, [isFocused]);
 
   useEffect(() => {
     if (loggedUSer == null) {
@@ -84,6 +225,7 @@ export default function PermissionReason() {
                 icon={btn.icon}
                 firstColor={btn.firstColor}
                 secondColor={btn.secondColor}
+                blink={index === activeIndex}
               />
             </MotiView>
           ))}

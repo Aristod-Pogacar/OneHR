@@ -27,5 +27,5 @@ export default function Index() {
   // return <Redirect href="/Loading" />
   // return <Redirect href="/EnrollScreen" />
   // return <Redirect href="/LoginScreen" />
-  return <Redirect href="/Login_fingerprint" />
+  return <Redirect href="/Login_matricule" />
 }

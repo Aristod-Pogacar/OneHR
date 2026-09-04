@@ -40,9 +40,9 @@ export const SquareButton: React.FC<SquareButtonProps> = ({
         activeOpacity={0.85}
         onPress={onPress}
         style={{
-          width: 150,
-          height: 150,
-          borderRadius: 20,
+          width: 180,
+          height: 180,
+          borderRadius: 18,
           overflow: "hidden",
           // Ombre colorée selon firstColor
           shadowColor: firstColor,
@@ -102,9 +102,9 @@ export const SquareButton: React.FC<SquareButtonProps> = ({
           {/* Icône avec halo */}
           <View
             style={{
-              width: 68,
-              height: 68,
-              borderRadius: 34,
+              width: 80,
+              height: 80,
+              borderRadius: 40,
               backgroundColor: "rgba(255,255,255,0.13)",
               borderWidth: 1,
               borderColor: "rgba(255,255,255,0.22)",
@@ -113,13 +113,13 @@ export const SquareButton: React.FC<SquareButtonProps> = ({
               marginBottom: 10,
             }}
           >
-            <MaterialCommunityIcons name={icon as any} size={36} color="#fff" />
+            <MaterialCommunityIcons name={icon as any} size={50} color="#fff" />
           </View>
 
           <Text
             style={{
               color: "#fff",
-              fontSize: 13,
+              fontSize: 18,
               fontWeight: "700",
               textAlign: "center",
               letterSpacing: 0.3,

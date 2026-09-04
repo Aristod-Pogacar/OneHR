@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
+import { ErrorModal } from "./components/ErrorModal";
 import { LoadingModal } from "./components/LoadingModal";
 
 type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
@@ -112,9 +113,11 @@ function LeaveCard({ leave, onPress }: { leave: Leave; onPress: () => void }) {
 
 export default function LeaveHistory() {
     const router = useRouter();
-    const { bg1, bg2, loggedUSer, ipAddress } = useGlobal();
+    const { bg1, bg2, loggedUSer, ipAddress, connected } = useGlobal();
     const [leaves, setLeaves] = useState<Leave[]>([]);
     const [loading, setLoading] = useState(true);
+
+    console.log("LOGGED USER:", loggedUSer);
 
     useEffect(() => {
         if (loggedUSer == null) { router.replace("/Login_matricule"); return; }
@@ -133,6 +136,7 @@ export default function LeaveHistory() {
     return (
         <LinearGradient colors={[bg1, bg2]} style={{ flex: 1 }} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}>
             <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
+            <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
             <LoadingModal visible={loading} message="Loading..." />
 
             {/* En-tête */}
@@ -162,9 +166,9 @@ export default function LeaveHistory() {
                 {/* Stats */}
                 <View style={{ flexDirection: "row", gap: 10, marginTop: 20 }}>
                     {[
-                        { label: "Totaly", value: total, color: "#fff" },
-                        { label: "Nekena", value: approved, color: "#5dfc2a" },
-                        { label: "Mbola miandry", value: pending, color: "#f5c518" },
+                        { label: "Solde conge", value: loggedUSer.solde_restant, color: "#fff" },
+                        { label: "Conge nalaina", value: loggedUSer.solde_pris, color: "#5dfc2a" },
+                        { label: "Permission nalaina", value: loggedUSer.solde_pris_permission, color: "#f5c518" },
                     ].map((s) => (
                         <View key={s.label} style={{
                             flex: 1, backgroundColor: "rgba(255,255,255,0.07)",

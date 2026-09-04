@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { BackHandler, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { useGlobal } from "./Providers/GlobalProvider";
+import { ErrorModal } from "./components/ErrorModal";
 import { SquareButton } from "./components/SquareButton";
 
 export default function MenuScreen() {
@@ -33,7 +34,7 @@ export default function MenuScreen() {
 
   const router = useRouter();
 
-  const { prefixMatricule, medicalService, setLoggedUser, bg1, bg2 } = useGlobal();
+  const { prefixMatricule, medicalService, setLoggedUser, bg1, bg2, connected } = useGlobal();
 
   console.log("GLOBAL PREFIX MATRICULE:", prefixMatricule);
   console.log("GLOBAL SERVICE MEDICAL:", medicalService);
@@ -51,7 +52,7 @@ export default function MenuScreen() {
     setLoggedUser(null);
     // Le useEffect gère la navigation si besoin,
     // sinon push direct ici car c'est un admin screen sans guard loggedUSer
-    router.replace('/Login_fingerprint');
+    router.replace('/Login_matricule');
   }
 
   return (
@@ -61,6 +62,7 @@ export default function MenuScreen() {
       start={{ x: 0.2, y: 0 }}
       end={{ x: 0.8, y: 1 }}
     >
+      <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
 
       {/* En-tête */}

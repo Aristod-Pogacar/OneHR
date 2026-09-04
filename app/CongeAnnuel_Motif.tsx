@@ -3,13 +3,14 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useGlobal } from "./Providers/GlobalProvider";
+import { ErrorModal } from "./components/ErrorModal";
 
 export default function CongeAnnuel_DateFin() {
   const router = useRouter();
 
   const { startingDate, endingDate } = useLocalSearchParams();
 
-  const { loggedUSer, bg1, bg2 } = useGlobal();
+  const { loggedUSer, bg1, bg2, connected } = useGlobal();
 
   if (loggedUSer == null) {
     router.push('/Login_matricule');
@@ -34,6 +35,7 @@ export default function CongeAnnuel_DateFin() {
   return (
     <LinearGradient colors={[bg1, bg2]} style={{ flex: 1 }} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}>
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.15)" }} />
+      <ErrorModal visible={!connected} message="Misy olana ny fifandraisana tompoko !" onClose={() => { }} />
 
       <View style={{ paddingTop: 48, paddingHorizontal: 28 }}>
         <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", letterSpacing: 2, textTransform: "uppercase", fontWeight: "600", marginBottom: 4 }}>
