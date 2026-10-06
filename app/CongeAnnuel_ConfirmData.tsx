@@ -121,6 +121,7 @@ export default function CongeAnnuel_ConfirmData() {
 
     const startingIndisponibiliteDate = new Date(endingLeaveDate.getFullYear(), endingLeaveDate.getMonth(), endingLeaveDate.getDate() + 1);
     const endingIndisponibiliteDate = new Date(endingDate.toString());
+    endingIndisponibiliteDate.setDate(endingIndisponibiliteDate.getDate() - 1);
 
     const dataIndisponibilite = {
       "employee": "" + loggedUSer.matricule,
@@ -215,10 +216,13 @@ export default function CongeAnnuel_ConfirmData() {
         return;
       }
       setLoading(false);
+      const testDate = new Date(en)
+      testDate.setDate(testDate.getDate() + 1)
+
       const data = {
         "employee": "" + loggedUSer.matricule,
         "start_date": "" + st.getFullYear() + "-" + String(st.getMonth() + 1).padStart(2, '0') + "-" + String(st.getDate()).padStart(2, '0'),
-        "end_date": "" + en.getFullYear() + "-" + String(en.getMonth() + 1).padStart(2, '0') + "-" + String(en.getDate() - 1).padStart(2, '0'),
+        "end_date": "" + testDate.getFullYear() + "-" + String(testDate.getMonth() + 1).padStart(2, '0') + "-" + String(testDate.getDate() - 1).padStart(2, '0'),
         "reason": remark,
         "leave_type": leave_type
       }
@@ -234,8 +238,21 @@ export default function CongeAnnuel_ConfirmData() {
           setLoading(false);
           router.push('/Menu');
         }
+      }).catch(error => {
+        console.log("Message :", error.message);
+        console.log("Code :", error.code);
+        console.log("Status :", error.response?.status);
+        console.log("Data :", error.response?.data);
+        console.log("Headers :", error.response?.headers);
+        console.log("URL :", error.config?.url);
+        console.log("Method :", error.config?.method);
+
+      }).finally(() => {
+        console.log("TEST");
+
       });
     } catch (error: any) {
+      console.log(error.message);
       Alert.alert(
         "Tsy voaray ny fangatahana",
         "Tsy voaray ny fangatahana tompoko. Avereno azafady",

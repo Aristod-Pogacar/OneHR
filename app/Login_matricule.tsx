@@ -135,16 +135,17 @@ export default function Login_matricule() {
     }
   };
 
-  const onPress = () => {
+  const onPress = async () => {
     try {
       setLoading(true);
-      get("" + prefixMatricule + matricule).then(user => {
+      await get("" + prefixMatricule + matricule).then(async (user) => {
         if (user) {
           // puppeteerLogin(puppeteerSession).then(value => {
           // console.log("stringify:", JSON.stringify(value));
           // setPuppeteerSession(value.sessionId);
           // if (value.success == true) {
           setLoading(false);
+          await stopLoopSound();
           router.push({
             pathname: '/Login_password',
             params: {

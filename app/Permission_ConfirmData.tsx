@@ -113,10 +113,13 @@ export default function Permission_ConfirmData() {
         setLoading(false);
         return;
       }
+      const testDate = new Date(en)
+      testDate.setDate(testDate.getDate() + 1)
+
       const data = {
         "employee": "" + loggedUSer.matricule,
         "start_date": "" + st.getFullYear() + "-" + String(st.getMonth() + 1).padStart(2, '0') + "-" + String(st.getDate()).padStart(2, '0'),
-        "end_date": "" + en.getFullYear() + "-" + String(en.getMonth() + 1).padStart(2, '0') + "-" + String(en.getDate() - 1).padStart(2, '0'),
+        "end_date": "" + testDate.getFullYear() + "-" + String(testDate.getMonth() + 1).padStart(2, '0') + "-" + String(testDate.getDate() - 1).padStart(2, '0'),
         "reason": permissionMotif,
         "leave_type": leave_type
       }

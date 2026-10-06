@@ -133,6 +133,7 @@ export default function Login_password() {
             user: JSON.stringify(jsonUser)
           },
         });
+        await stopLoopSound();
         setLoading(false);
         // } else {
         //   setLoading(false);
